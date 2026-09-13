@@ -1,0 +1,108 @@
+---
+layout: default
+title: جست‌وجو
+permalink: /search/
+---
+<header class="gHead">
+  <h1>جست‌وجو</h1>
+  <form class="sForm" role="search">
+    <input type="search" id="bigQ" name="q" placeholder="عنوان، متن، دسته یا برچسب…" autocomplete="off" aria-label="جست‌وجو در نوشته‌ها">
+    <button type="submit">بگرد</button>
+  </form>
+  <p class="sCount num" id="sCount" role="status"></p>
+</header>
+
+<div id="sHits"></div>
+<div class="sMoreWrap"><button type="button" id="sMore" hidden>نتایج بیشتر</button></div>
+
+<style>
+.gHead{padding:36px 0 22px;border-bottom:2px solid var(--line);margin-bottom:8px;}
+.gHead h1{font-family:var(--fhead);font-size:clamp(30px,5vw,56px);font-weight:900;
+  margin:0 0 18px;letter-spacing:-.035em;line-height:1;}
+.sForm{display:flex;gap:8px;max-width:520px;}
+.sForm input{flex:1;min-width:0;font-family:var(--fbody);font-size:15px;color:var(--ink);
+  background:transparent;border:1px solid var(--line);padding:11px 14px;}
+.sForm input:focus{outline:2px solid var(--orange);outline-offset:-1px;}
+.sForm button{font-family:var(--fbody);font-size:13.5px;font-weight:600;cursor:pointer;
+  border:1px solid var(--line);background:var(--ink);color:var(--bg);padding:11px 20px;}
+.sForm button:hover{background:var(--orange);border-color:var(--orange);}
+.sCount{font-size:12.5px;color:var(--faint);margin:14px 0 0;}
+.sHit{display:block;padding:19px 0;border-top:1px solid var(--line);transition:padding .12s,background .12s;}
+#sHits .sHit:last-child{border-bottom:1px solid var(--line);}
+.sHit:hover{background:var(--ink);color:var(--bg);padding-right:14px;padding-left:14px;}
+.sHit:hover .sMeta{color:var(--orange);}
+.sHit:hover .sBody{color:var(--wash);}
+.sHit h2{font-family:var(--fhead);font-size:clamp(18px,2.3vw,25px);font-weight:700;
+  margin:0 0 7px;line-height:1.3;letter-spacing:-.02em;}
+.sBody{font-size:14px;font-weight:300;color:var(--soft);line-height:1.85;margin:0 0 7px;
+  max-width:70ch;text-wrap:pretty;}
+.sMeta{font-size:11.5px;color:var(--faint);}
+.sEmpty{padding:44px 0 60px;}
+.sEmpty h2{font-family:var(--fhead);font-size:clamp(22px,3.4vw,34px);font-weight:900;
+  margin:0 0 10px;letter-spacing:-.03em;}
+.sEmpty p{color:var(--soft);font-weight:300;margin:0 0 20px;max-width:48ch;line-height:1.9;}
+.sEmpty a{font-size:13px;border:1px solid var(--line);padding:9px 18px;font-weight:500;}
+.sEmpty a:hover{background:var(--orange);border-color:var(--orange);color:#fff;}
+.sMoreWrap{padding:24px 0 40px;}
+#sMore{font-family:var(--fbody);font-size:13px;font-weight:600;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--ink);padding:11px 22px;}
+#sMore:hover{background:var(--orange);border-color:var(--orange);color:#fff;}
+</style>
+
+<script>
+function ready(fn){
+  if(window.siteSearch){fn();return;}
+  setTimeout(function(){ready(fn);},30);
+}
+ready(function(){
+  var inp=document.getElementById('bigQ'),box=document.getElementById('sHits');
+  var cnt=document.getElementById('sCount'),more=document.getElementById('sMore');
+  var form=document.querySelector('.sForm');
+  var PAGE=10,hits=[],shown=0;
+  var fa=function(n){return String(n).replace(/[0-9]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[+d];});};
+
+  function render(){
+    var slice=hits.slice(0,shown);
+    box.innerHTML=slice.map(function(h){
+      var meta=[h.p.date].concat(h.p.tags?[h.p.tags.split(' ').join(' · ')]:[]).filter(Boolean).join('   ');
+      return '<a class="sHit" href="'+h.p.url+'">'
+        +'<h2>'+window.siteSearch.mark(h.p.title,h.words)+'</h2>'
+        +'<p class="sBody">'+(window.siteSearch.snippet(h)||'')+'</p>'
+        +'<span class="sMeta num">'+window.siteSearch.esc(meta)+'</span></a>';
+    }).join('');
+    more.hidden=shown>=hits.length;
+    more.textContent='نتایج بیشتر ('+fa(hits.length-shown)+')';
+  }
+  function empty(v){
+    box.innerHTML='<div class="sEmpty"><h2>چیزی برای «'+window.siteSearch.esc(v)+'» پیدا نشد</h2>'
+      +'<p>می‌توانی بخشی از کلمه را بنویسی، یا از آرشیو و برچسب‌ها مرور کنی.</p>'
+      +'<a href="{{ "/archive/" | relative_url }}">آرشیو نوشته‌ها</a></div>';
+    more.hidden=true;
+  }
+  function search(v,push){
+    v=String(v||'').trim();
+    if(push){
+      var u=v?location.pathname+'?q='+encodeURIComponent(v):location.pathname;
+      history.replaceState(null,'',u);
+    }
+    if(!v){box.innerHTML='';cnt.textContent='';more.hidden=true;return;}
+    cnt.textContent='در حال جست‌وجو…';
+    window.siteSearch.load().then(function(){
+      hits=window.siteSearch.query(v);
+      shown=Math.min(PAGE,hits.length);
+      cnt.textContent=hits.length?fa(hits.length)+' نتیجه برای «'+v+'»':'';
+      if(!hits.length)empty(v);else render();
+    });
+  }
+  more.addEventListener('click',function(){shown=Math.min(shown+PAGE,hits.length);render();});
+  form.addEventListener('submit',function(e){e.preventDefault();search(inp.value,true);});
+  var deb=null;
+  inp.addEventListener('input',function(){
+    clearTimeout(deb);
+    deb=setTimeout(function(){search(inp.value,true);},200);
+  });
+  var q0=new URLSearchParams(location.search).get('q');
+  if(q0){inp.value=q0;search(q0,false);}
+  inp.focus();
+});
+</script>
