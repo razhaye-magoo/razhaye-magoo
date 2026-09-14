@@ -240,8 +240,9 @@
   /* ---------- reveal on scroll ---------- */
   var rev = document.querySelectorAll('.reveal');
   if (rev.length) {
+    var showAll = function () { rev.forEach(function (el) { el.classList.add('is-in'); }); };
     if (reduce || !('IntersectionObserver' in window)) {
-      rev.forEach(function (el) { el.classList.add('is-in'); });
+      showAll();
     } else {
       var ro = new IntersectionObserver(function (es) {
         es.forEach(function (en) {
@@ -249,6 +250,14 @@
         });
       }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
       rev.forEach(function (el) { ro.observe(el); });
+      // anything already on screen settles immediately; everything else has a
+      // hard deadline, so a missed callback can never leave content shifted out
+      rev.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('is-in');
+      });
+      window.addEventListener('load', showAll);
+      setTimeout(showAll, 1200);
     }
   }
 
