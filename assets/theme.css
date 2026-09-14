@@ -10,6 +10,7 @@
   --paper:#F2EFE8;
   --paper-2:#EAE6DC;
   --paper-3:#E1DCD0;
+  --field:#EDEAE2;   /* the reading field — between paper and paper-2 */
   --ink:#121313;
   --ink-2:#3B3D39;
   --ink-3:#62655D;
@@ -37,6 +38,7 @@ html[data-theme="dark"]{
   --paper:#191817;
   --paper-2:#211F1D;
   --paper-3:#2A2724;
+  --field:#1D1C1A;
   --ink:#EFEBE2;
   --ink-2:#C3BDB1;
   --ink-3:#9A958A;
@@ -55,6 +57,7 @@ html[data-theme="dark"]{
     --paper:#191817;
     --paper-2:#211F1D;
     --paper-3:#2A2724;
+    --field:#1D1C1A;
     --ink:#EFEBE2;
     --ink-2:#C3BDB1;
     --ink-3:#9A958A;
@@ -417,7 +420,7 @@ html.js .reveal.is-in{transform:none;
 .article-body{min-width:0;}
 /* the body of the piece sits on a faintly toned field, so the reader can see
    where the header ends and the text begins — rules, not a rounded card */
-.article-body .prose{max-width:70ch;background:var(--paper-2);
+.article-body .prose{max-width:70ch;background:var(--field);
   border-block:1px solid var(--rule);
   padding:clamp(22px,3vw,38px) clamp(18px,2.6vw,34px);}
 .article-body .prose pre{border-color:#131413;}
@@ -586,7 +589,7 @@ mark{background:var(--accent);color:var(--on-accent);padding:0 3px;}
 .prose figure img{display:block;width:100%;border:1px solid var(--rule);}
 .prose figcaption{font-size:13.5px;color:var(--ink-3);padding-top:10px;line-height:1.75;
   border-inline-start:2px solid var(--rule);padding-inline-start:10px;margin-top:8px;}
-.prose img{border:1px solid var(--rule);background:var(--paper-2);}
+.prose img{border:1px solid var(--rule);background:var(--paper-3);}
 .prose picture,.prose video,.prose audio,.prose canvas,.prose svg{max-width:100%;}
 .prose video,.prose audio{display:block;width:100%;margin:2.1em 0;}
 .prose audio{border:1px solid var(--rule);}
@@ -600,10 +603,10 @@ mark{background:var(--accent);color:var(--on-accent);padding:0 3px;}
   vertical-align:top;line-height:1.75;}
 .prose thead th{background:var(--paper-3);color:var(--ink);font-weight:700;
   white-space:nowrap;border-color:var(--rule-2);}
-.prose tbody tr:nth-child(even){background:var(--paper-2);}
+.prose tbody tr:nth-child(even){background:var(--paper-3);}
 .prose caption{caption-side:bottom;padding-top:10px;font-size:13.5px;color:var(--ink-3);}
 .prose code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;
-  background:var(--paper-2);border:1px solid var(--rule);padding:1px 5px;
+  background:var(--paper-3);border:1px solid var(--rule);padding:1px 5px;
   direction:ltr;display:inline-block;unicode-bidi:embed;}
 .codeBox{position:relative;margin:2.1em 0;}
 .codeBox pre{margin:0;}
@@ -619,12 +622,12 @@ mark{background:var(--accent);color:var(--on-accent);padding:0 3px;}
 .prose kbd{border:1px solid var(--rule-2);border-bottom-width:3px;padding:1px 6px;
   font-size:.82em;direction:ltr;display:inline-block;}
 .prose details{border:1px solid var(--rule-2);padding:14px 17px;margin:1.7em 0;
-  background:var(--paper-2);}
+  background:var(--paper-3);}
 .prose summary{cursor:pointer;font-weight:700;}
 .prose details[open] summary{margin-bottom:.8em;padding-bottom:.6em;
   border-bottom:1px solid var(--rule);}
 .prose .note,.prose .callout{border:1px solid var(--ink);padding:18px 20px;margin:2.1em 0;
-  background:var(--paper-2);}
+  background:var(--paper-3);}
 .prose .note > *:last-child,.prose .callout > *:last-child{margin-bottom:0;}
 .prose .note.warn,.prose .callout.warn{border-color:var(--accent);
   border-inline-start-width:3px;}

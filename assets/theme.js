@@ -185,7 +185,6 @@
         });
       }, { rootMargin: '0px 0px -12% 0px', threshold: 0.2 });
       ruled.forEach(function (el) { rio.observe(el); });
-      setTimeout(function () { ruled.forEach(function (el) { el.classList.add('is-in'); }); }, 2500);
     }
   }
 
@@ -282,9 +281,8 @@
   /* ---------- reveal on scroll ---------- */
   var rev = document.querySelectorAll('.reveal');
   if (rev.length) {
-    var showAll = function () { rev.forEach(function (el) { el.classList.add('is-in'); }); };
     if (reduce || !('IntersectionObserver' in window)) {
-      showAll();
+      rev.forEach(function (el) { el.classList.add('is-in'); });
     } else {
       var ro = new IntersectionObserver(function (es) {
         es.forEach(function (en) {
@@ -292,14 +290,13 @@
         });
       }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
       rev.forEach(function (el) { ro.observe(el); });
-      // anything already on screen settles immediately; everything else has a
-      // hard deadline, so a missed callback can never leave content shifted out
+      // what is already on screen settles at once; the rest waits for the
+      // scroll. Safe without a deadline: .reveal animates transform only, so a
+      // missed callback can shift an element but never hide it.
       rev.forEach(function (el) {
         var r = el.getBoundingClientRect();
         if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('is-in');
       });
-      window.addEventListener('load', showAll);
-      setTimeout(showAll, 1200);
     }
   }
 
