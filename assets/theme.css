@@ -134,6 +134,20 @@ a.tagpill:hover{border-color:var(--accent);color:var(--accent);}
 .shead h2{font-size:16px;font-weight:800;letter-spacing:.01em;margin:0;color:var(--ink);}
 .shead .c{font-size:14px;color:var(--ink-3);white-space:nowrap;}
 
+/* rules draw themselves as the section arrives — decorative only, so a missed
+   callback can never hide anything */
+.shead,.year-head{position:relative;}
+html.js .shead::after,html.js .year-head::after,html.js .prose h2::after{
+  content:"";position:absolute;inset-inline:0;inset-block-end:-1px;height:1px;
+  background:var(--accent);transform:scaleX(0);transform-origin:right;}
+html.js .shead.is-in::after,html.js .year-head.is-in::after,html.js .prose h2.is-in::after{
+  transform:scaleX(1);transition:transform .7s cubic-bezier(.2,.7,.2,1);}
+html.js .prose h2{position:relative;}
+
+/* cover drifts a little slower than the page */
+.cover{overflow:hidden;}
+.cover img{will-change:transform;}
+
 /* reveal (progressive; visible when JS is off) */
 /* motion only — content is never hidden behind a JS callback */
 html.js .reveal{transform:translateY(12px);}
@@ -141,14 +155,26 @@ html.js .reveal.is-in{transform:none;
   transition:transform .55s cubic-bezier(.2,.7,.2,1);}
 
 /* ---------- 3. reading progress ---------- */
-.progress{position:fixed;inset-block-start:0;inset-inline:0;height:2px;z-index:80;
+.progress{position:fixed;inset-block-start:0;inset-inline:0;height:3px;z-index:80;
   background:transparent;pointer-events:none;}
 .progress i{display:block;height:100%;width:0;background:var(--accent);}
+/* how much of the piece is read, in words rather than a bare bar */
+.readmark{position:fixed;inset-block-end:76px;inset-inline-start:20px;z-index:60;
+  display:none;align-items:center;gap:9px;padding:8px 13px;min-height:38px;
+  background:var(--paper);border:1px solid var(--ink);font-size:13.5px;
+  font-weight:600;color:var(--ink-2);pointer-events:none;}
+.readmark.is-on{display:flex;}
+.readmark b{font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;}
+.readmark i{display:block;width:34px;height:2px;background:var(--rule-2);position:relative;}
+.readmark i span{position:absolute;inset-block:0;inset-inline-start:0;width:0;
+  background:var(--accent);display:block;}
 
 /* ---------- 4. header ---------- */
 .site-head{position:sticky;top:0;z-index:70;background:var(--paper);
   border-bottom:1px solid var(--rule);}
 .site-head.is-stuck{border-bottom-color:var(--ink);}
+.brand-no{transition:opacity .25s ease,transform .25s ease;}
+.site-head.is-stuck .brand-no{opacity:0;transform:translateY(-3px);}
 .head-in{display:flex;align-items:center;gap:clamp(14px,3vw,40px);
   min-height:var(--hdr);max-width:var(--maxw);margin:0 auto;padding-inline:var(--gut);}
 .brand{display:flex;align-items:center;gap:10px;flex:0 0 auto;min-width:0;}
@@ -672,6 +698,7 @@ mark{background:var(--accent);color:var(--on-accent);padding:0 3px;}
   .article-meta{grid-template-columns:repeat(2,minmax(0,1fr));}
   .cover img{aspect-ratio:4/3;}
   .totop{inset-block-end:14px;inset-inline-start:14px;}
+  .readmark{inset-block-end:68px;inset-inline-start:14px;font-size:13px;}
 }
 @media (max-width:400px){
   .searchbar{flex-direction:column;}
@@ -685,11 +712,13 @@ mark{background:var(--accent);color:var(--on-accent);padding:0 3px;}
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
     transition-duration:.001ms!important;}
   html.js .reveal{transform:none;}
+  html.js .shead::after,html.js .year-head::after,html.js .prose h2::after{transform:scaleX(1);}
+  .cover img{transform:none!important;}
 }
 
 /* ---------- 13. print ---------- */
 @media print{
-  .site-head,.site-foot,.progress,.toc,.share,.pager,.totop,.drawer,.skip,.filters{display:none!important;}
+  .site-head,.site-foot,.progress,.toc,.share,.pager,.totop,.drawer,.skip,.filters,.readmark{display:none!important;}
   body{background:#fff;color:#000;font-size:11pt;}
   .article-shell.has-toc{grid-template-columns:1fr;}
   .prose{max-width:none;}
