@@ -157,6 +157,37 @@ html.js .reveal{transform:translateY(12px);}
 html.js .reveal.is-in{transform:none;
   transition:transform .55s cubic-bezier(.2,.7,.2,1);}
 
+/* ---------- 2b. scroll-lit ground ---------- */
+/* One very low-alpha wash behind everything. Its angle and position track the
+   scroll, so the page feels lit from a slowly moving source. Alpha stays under
+   4% — at full scroll it is still barely nameable as a gradient. */
+html{--lit:0deg;--litY:0%;}
+body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;
+  background:linear-gradient(var(--lit),
+    rgba(168,50,50,.038) 0%,
+    rgba(168,50,50,0) 42%,
+    rgba(107,108,94,.03) 100%);
+  background-position:0 var(--litY);background-size:100% 140%;
+  transition:none;}
+html[data-theme="dark"] body::before{
+  background:linear-gradient(var(--lit),
+    rgba(224,104,92,.05) 0%,
+    rgba(224,104,92,0) 44%,
+    rgba(142,144,128,.042) 100%);
+  background-position:0 var(--litY);background-size:100% 140%;}
+@media (prefers-color-scheme:dark){
+  html:not([data-theme="light"]) body::before{
+    background:linear-gradient(var(--lit),
+      rgba(224,104,92,.05) 0%,
+      rgba(224,104,92,0) 44%,
+      rgba(142,144,128,.042) 100%);
+    background-position:0 var(--litY);background-size:100% 140%;}
+}
+@media (prefers-reduced-motion:reduce){
+  html{--lit:150deg!important;--litY:0%!important;}
+}
+@media print{body::before{display:none;}}
+
 /* ---------- 3. reading progress ---------- */
 .progress{position:fixed;inset-block-start:0;inset-inline:0;height:3px;z-index:80;
   background:transparent;pointer-events:none;}

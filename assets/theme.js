@@ -156,6 +156,27 @@
     window.addEventListener('resize', upd);
   }
 
+  /* ---------- scroll-lit ground ---------- */
+  if (!reduce) {
+    var litTick = false;
+    var lit = function () {
+      var doc = document.documentElement;
+      var span = doc.scrollHeight - window.innerHeight;
+      var p = span > 0 ? Math.min(Math.max(window.pageYOffset / span, 0), 1) : 0;
+      // 118deg → 212deg across the page, and the wash slides a little too
+      doc.style.setProperty('--lit', (118 + p * 94).toFixed(1) + 'deg');
+      doc.style.setProperty('--litY', (p * 40).toFixed(1) + '%');
+      litTick = false;
+    };
+    lit();
+    window.addEventListener('scroll', function () {
+      if (litTick) return;
+      litTick = true;
+      window.requestAnimationFrame(lit);
+    }, { passive: true });
+    window.addEventListener('resize', lit);
+  }
+
   /* ---------- scroll-linked motion ---------- */
   var coverImg = document.querySelector('.cover img');
   if (coverImg && !reduce) {
