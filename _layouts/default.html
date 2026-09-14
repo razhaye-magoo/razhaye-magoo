@@ -1,467 +1,141 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="{{ site.lang | default: 'fa' }}" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{% assign cover = page.image | default: page.cover %}
+{% assign ogimg = cover | default: site.banner %}
+{% assign pdesc = page.description | default: site.description %}
 <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
-<meta name="description" content="{{ page.description | default: site.description }}">
-<meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
-<meta property="og:description" content="{{ page.description | default: site.description }}">
-<meta property="og:type" content="{% if page.date %}article{% else %}website{% endif %}">
-{% if site.banner %}<meta property="og:image" content="{{ site.banner | absolute_url }}">{% endif %}
-<meta name="twitter:card" content="summary_large_image">
-{% if page.image %}<meta property="og:image" content="{{ page.image | absolute_url }}">{% endif %}
+<meta name="description" content="{{ pdesc | strip_html | strip_newlines | truncate: 180 }}">
 <link rel="canonical" href="{% if page.canonical %}{{ page.canonical }}{% else %}{{ page.url | absolute_url }}{% endif %}">
-{% if page.noindex %}<meta name="robots" content="noindex, nofollow">{% endif %}
+{% if page.noindex %}<meta name="robots" content="noindex, nofollow">{% else %}<meta name="robots" content="index, follow, max-image-preview:large">{% endif %}
+<meta property="og:site_name" content="{{ site.title }}">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+<meta property="og:description" content="{{ pdesc | strip_html | strip_newlines | truncate: 180 }}">
+<meta property="og:type" content="{% if page.date %}article{% else %}website{% endif %}">
+<meta property="og:url" content="{{ page.url | absolute_url }}">
+{% if ogimg %}<meta property="og:image" content="{{ ogimg | absolute_url }}">{% endif %}
+{% if page.date %}<meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+<meta property="article:modified_time" content="{{ page.modified | default: page.date | date_to_xmlschema }}">
+{% for t in page.tags %}<meta property="article:tag" content="{{ t }}">{% endfor %}{% endif %}
+<meta name="twitter:card" content="{% if ogimg %}summary_large_image{% else %}summary{% endif %}">
+<meta name="twitter:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+<meta name="twitter:description" content="{{ pdesc | strip_html | strip_newlines | truncate: 180 }}">
+{% if ogimg %}<meta name="twitter:image" content="{{ ogimg | absolute_url }}">{% endif %}
+<meta name="theme-color" content="#F2EFE8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#191817" media="(prefers-color-scheme: dark)">
 <script type="application/ld+json">
-{% if page.date %}{"@context":"https://schema.org","@type":"BlogPosting","headline":{{ page.title | jsonify }},"datePublished":"{{ page.date | date_to_xmlschema }}","dateModified":"{{ page.date | date_to_xmlschema }}","description":{{ page.description | default: site.description | jsonify }},"inLanguage":"fa-IR","mainEntityOfPage":{"@type":"WebPage","@id":"{{ page.url | absolute_url }}"},"author":{"@type":"Person","name":{{ site.author | default: site.title | jsonify }}},"publisher":{"@type":"Organization","name":{{ site.title | jsonify }}}{% if page.image %},"image":"{{ page.image | absolute_url }}"{% endif %}}{% else %}{"@context":"https://schema.org","@type":"WebSite","name":{{ site.title | jsonify }},"url":"{{ '/' | absolute_url }}","description":{{ site.description | jsonify }},"inLanguage":"fa-IR","potentialAction":{"@type":"SearchAction","target":"{{ '/search/' | absolute_url }}?q={query}","query-input":"required name=query"}}{% endif %}
+{% if page.date %}{"@context":"https://schema.org","@type":"BlogPosting","headline":{{ page.title | jsonify }},"datePublished":"{{ page.date | date_to_xmlschema }}","dateModified":"{{ page.modified | default: page.date | date_to_xmlschema }}","description":{{ pdesc | jsonify }},"inLanguage":"fa-IR","mainEntityOfPage":{"@type":"WebPage","@id":"{{ page.url | absolute_url }}"},"author":{"@type":"Person","name":{{ site.author | default: site.title | jsonify }}},"publisher":{"@type":"Organization","name":{{ site.title | jsonify }}}{% if ogimg %},"image":"{{ ogimg | absolute_url }}"{% endif %}{% if page.tags.size > 0 %},"keywords":{{ page.tags | join: ", " | jsonify }}{% endif %}}{% else %}{"@context":"https://schema.org","@type":"WebSite","name":{{ site.title | jsonify }},"url":"{{ '/' | absolute_url }}","description":{{ site.description | jsonify }},"inLanguage":"fa-IR","potentialAction":{"@type":"SearchAction","target":"{{ '/search/' | absolute_url }}?q={query}","query-input":"required name=query"}}{% endif %}
 </script>
 <link rel="alternate" type="application/atom+xml" href="{{ '/feed.xml' | relative_url }}" title="{{ site.title }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ '/assets/theme.css' | relative_url }}">
 <style>
 {% if site.font_body_url %}@font-face{font-family:'{{ site.font_body_name | default: "SiteBody" }}';src:url('{{ site.font_body_url | relative_url }}');font-display:swap;}{% endif %}
 {% if site.font_head_url %}@font-face{font-family:'{{ site.font_head_name | default: "SiteHead" }}';src:url('{{ site.font_head_url | relative_url }}');font-display:swap;}{% endif %}
 :root{
-  --bg:#F4F5F6; --ink:#15171A; --soft:#4C5157; --faint:#767C84;
-  --orange:#39424C; --line:#D7DADE; --hair:#E3E5E8; --wash:#EBEDEF;
-  --r:12px; --rs:8px; --rp:999px;
-  --fbody:{% if site.font_body_url %}'{{ site.font_body_name | default: "SiteBody" }}',{% endif %}'Vazirmatn',system-ui,sans-serif;
-  --fhead:{% if site.font_head_url %}'{{ site.font_head_name | default: "SiteHead" }}',{% endif %}var(--fbody);
+  --f-body:{% if site.font_body_url %}'{{ site.font_body_name | default: "SiteBody" }}',{% endif %}'Vazirmatn',system-ui,sans-serif;
+  --f-head:{% if site.font_head_url %}'{{ site.font_head_name | default: "SiteHead" }}',{% endif %}var(--f-body);
 }
-*{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fbody);
-  font-size:15px;line-height:1.85;-webkit-font-smoothing:antialiased;
-  overflow-wrap:break-word;}
-a{color:inherit;text-decoration:none;}
-a:hover{color:var(--orange);}
-img{max-width:100%;height:auto;}
-.num{font-variant-numeric:tabular-nums;}
-.wrap{max-width:1300px;margin:0 auto;padding:0 26px;}
-
-/* progress */
-.pTrack{position:fixed;top:0;right:0;left:0;height:3px;background:transparent;z-index:60;}
-.pTrack i{display:block;height:100%;width:0;background:var(--orange);transition:width .08s linear;}
-
-/* header */
-header{border-bottom:1px solid var(--line);background:var(--bg);}
-.hbar{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;
-  padding:22px 0 18px;flex-wrap:wrap;}
-.logo{font-family:var(--fhead);font-size:clamp(24px,3.6vw,38px);font-weight:900;
-  letter-spacing:-.03em;line-height:1;}
-.logo b{color:var(--orange);font-weight:900;}
-.hnav{display:flex;gap:17px;flex-wrap:wrap;font-size:13px;font-weight:500;}
-.hnav a{padding-bottom:3px;border-bottom:2px solid transparent;}
-.hnav a:hover{border-color:var(--orange);}
-
-/* shell: sidebar sits on the right (first in RTL flow) */
-.shell{display:grid;grid-template-columns:288px minmax(0,1fr);gap:0;align-items:start;}
-.side{position:sticky;top:0;align-self:start;padding:30px 0 40px 30px;
-  border-left:1px solid var(--hair);max-height:100vh;overflow-y:auto;
-  scrollbar-width:thin;}
-main{min-width:0;padding:30px 30px 40px 0;}
-
-.sTitle{font-size:11px;font-weight:700;letter-spacing:.14em;margin:0 0 14px;
-  padding-bottom:9px;border-bottom:1px solid var(--line);color:var(--soft);}
-.sBlock{margin-bottom:34px;}
-.sItem{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:baseline;
-  padding:12px 0;border-bottom:1px solid var(--hair);}
-.sItem:last-child{border-bottom:0;}
-.sItem em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--faint);}
-.sItem h4{font-family:var(--fhead);font-size:15px;font-weight:600;margin:0 0 3px;
-  line-height:1.35;letter-spacing:-.01em;}
-.sItem span{font-size:11.5px;color:var(--faint);}
-.sItem:hover h4{color:var(--orange);}
-
-.sSearch{display:flex;border:1px solid var(--line);border-radius:var(--rs);background:#fff;overflow:hidden;}
-.sSearch input{flex:1;min-width:0;border:0;background:transparent;padding:9px 11px;
-  font-family:var(--fbody);font-size:13px;color:var(--ink);}
-.sSearch input:focus{outline:2px solid var(--orange);outline-offset:-2px;border-radius:var(--rs);}
-.sRes{margin-top:10px;}
-.sRes a{display:block;padding:8px 0;border-bottom:1px solid var(--hair);font-size:13px;}
-.sRes p{margin:8px 0 0;font-size:12px;color:var(--faint);}
-
-.tagCloud{display:flex;flex-wrap:wrap;gap:6px;}
-.tagCloud a{font-size:11.5px;border:1px solid var(--line);padding:3px 11px;border-radius:var(--rp);background:#fff;}
-.tagCloud a:hover{background:var(--orange);border-color:var(--orange);color:#fff;}
-
-footer{border-top:1px solid var(--line);padding:28px 0 46px;margin-top:20px;
-  display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;
-  font-size:12.5px;color:var(--faint);}
-
-/* ---------- prose: styles every element author HTML may contain ---------- */
-.prose{font-size:16.5px;line-height:2.05;}
-.prose > *:first-child{margin-top:0;}
-.prose > *:last-child{margin-bottom:0;}
-.prose p{margin:0 0 1.25em;text-wrap:pretty;}
-.prose h2,.prose h3,.prose h4,.prose h5,.prose h6{font-family:var(--fhead);
-  font-weight:700;letter-spacing:-.02em;line-height:1.25;margin:1.9em 0 .6em;}
-.prose h2{font-size:clamp(24px,3.2vw,32px);padding-bottom:.3em;border-bottom:1px solid var(--line);}
-.prose h3{font-size:clamp(20px,2.6vw,25px);}
-.prose h4{font-size:18px;}
-.prose h5,.prose h6{font-size:15px;letter-spacing:.04em;color:var(--soft);}
-.prose a{color:var(--orange);border-bottom:1px solid currentColor;}
-.prose a:hover{background:var(--orange);color:#fff;border-color:var(--orange);border-radius:4px;}
-.prose strong,.prose b{font-weight:700;}
-.prose em,.prose i{font-style:italic;}
-.prose mark{background:var(--wash);color:var(--ink);padding:0 4px;border-radius:4px;}
-.prose small{font-size:.82em;color:var(--soft);}
-.prose sub,.prose sup{font-size:.72em;}
-.prose ul,.prose ol{margin:0 0 1.25em;padding-right:1.5em;padding-left:0;}
-.prose li{margin-bottom:.45em;}
-.prose li::marker{color:var(--orange);}
-.prose ul ul,.prose ol ol,.prose ul ol,.prose ol ul{margin:.45em 0;}
-.prose dl{margin:0 0 1.25em;}
-.prose dt{font-weight:700;margin-top:.8em;}
-.prose dd{margin:0 1.5em 0 0;color:var(--soft);}
-.prose hr{border:0;border-top:1px solid var(--line);margin:2.4em 0;}
-.prose blockquote{margin:1.8em 0;padding:0 1.1em 0 0;border-right:3px solid var(--orange);
-  font-size:1.06em;color:var(--soft);}
-.prose blockquote p:last-child{margin-bottom:0;}
-.prose blockquote cite{display:block;margin-top:.6em;font-size:.8em;
-  font-style:normal;color:var(--faint);}
-.prose figure{margin:1.9em 0;}
-.prose figure img{display:block;width:100%;border:1px solid var(--hair);}
-.prose figcaption{font-size:12.5px;color:var(--faint);padding-top:8px;line-height:1.7;}
-.prose img{border:1px solid var(--hair);}
-.prose picture,.prose video,.prose audio,.prose canvas,.prose svg{max-width:100%;}
-.prose video,.prose audio{display:block;width:100%;margin:1.9em 0;}
-.prose iframe,.prose embed,.prose object{max-width:100%;border:1px solid var(--hair);}
-.prose .embed{position:relative;padding-top:56.25%;margin:1.9em 0;border:1px solid var(--hair);}
-.prose .embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
-.tableWrap{overflow-x:auto;margin:1.9em 0;border:1px solid var(--line);}
-.prose table{border-collapse:collapse;width:100%;font-size:14px;}
-.prose th,.prose td{border:1px solid var(--hair);padding:9px 12px;text-align:right;
-  vertical-align:top;}
-.prose thead th{background:var(--ink);color:var(--bg);border-color:var(--ink);
-  font-weight:600;white-space:nowrap;}
-.prose tbody tr:nth-child(even){background:var(--wash);}
-.prose caption{caption-side:bottom;padding-top:8px;font-size:12.5px;color:var(--faint);}
-.prose code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.87em;
-  background:var(--wash);border:1px solid var(--hair);padding:1px 5px;direction:ltr;
-  display:inline-block;unicode-bidi:embed;}
-.prose pre{background:var(--ink);color:#EDEAE3;padding:16px 18px;overflow-x:auto;
-  direction:ltr;text-align:left;margin:1.9em 0;font-size:13.5px;line-height:1.7;}
-.prose pre code{background:none;border:0;padding:0;color:inherit;display:block;}
-.prose kbd{border:1px solid var(--line);border-bottom-width:3px;padding:1px 6px;
-  font-size:.82em;direction:ltr;display:inline-block;}
-.prose details{border:1px solid var(--line);padding:12px 15px;margin:1.5em 0;}
-.prose summary{cursor:pointer;font-weight:600;}
-.prose details[open] summary{margin-bottom:.7em;padding-bottom:.5em;
-  border-bottom:1px solid var(--hair);}
-.prose .note{border:2px solid var(--line);padding:16px 18px;margin:1.9em 0;}
-.prose .note.warn{border-color:var(--orange);}
-.prose .note > *:last-child{margin-bottom:0;}
-.prose .lead{font-size:1.16em;font-weight:300;color:var(--soft);line-height:1.9;}
-.prose .full{margin-right:calc(-1 * min(6vw,60px));margin-left:calc(-1 * min(6vw,60px));}
-.prose .cols{columns:2;column-gap:40px;}
-.prose iframe[src*="youtube"],.prose iframe[src*="aparat"]{width:100%;aspect-ratio:16/9;height:auto;}
-
-/* ---------- slideshow ---------- */
-.slideshow{border:2px solid var(--line);margin:1.9em 0;background:var(--wash);}
-.ssView{position:relative;overflow:hidden;}
-.ssTrack{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);}
-.ssSlide{flex:0 0 100%;margin:0;min-width:0;}
-.ssSlide img{display:block;width:100%;border:0;}
-.ssSlide figcaption{padding:10px 14px;font-size:12.5px;color:var(--soft);
-  background:var(--bg);border-top:1px solid var(--hair);line-height:1.7;}
-.ssBar{display:flex;align-items:center;gap:12px;padding:9px 12px;
-  border-top:2px solid var(--line);background:var(--bg);}
-.ssBar button{font-family:var(--fbody);font-size:12.5px;font-weight:600;cursor:pointer;
-  border:1px solid var(--line);background:transparent;color:var(--ink);padding:5px 13px;}
-.ssBar button:hover:not(:disabled){background:var(--orange);border-color:var(--orange);color:#fff;}
-.ssBar button:disabled{opacity:.32;cursor:default;}
-.ssCount{font-size:12px;color:var(--faint);margin-right:auto;}
-.ssDots{display:flex;gap:5px;}
-.ssDots i{width:7px;height:7px;background:var(--hair);cursor:pointer;display:block;}
-.ssDots i.on{background:var(--orange);}
-.slideshow:not(.ready) .ssBar{display:none;}
-.slideshow:not(.ready) > figure + figure,
-.slideshow:not(.ready) > img + img{display:none;}
-
-@media(max-width:980px){
-  .shell{grid-template-columns:1fr;}
-  .side{position:static;border-left:0;border-top:2px solid var(--line);
-    padding:26px 0 34px;margin-top:20px;order:2;}
-  main{padding:26px 0 10px;order:1;}
-  .prose .cols{columns:1;}
-  .prose .full{margin-right:0;margin-left:0;}
-}
-@media print{
-  .side,.pTrack,header .hnav,.ssBar,footer{display:none;}
-  body{background:#fff;font-size:11pt;}
-  .shell{display:block;}
-}
-mark{background:var(--orange);color:#fff;padding:0 3px;border-radius:4px;}
-.sRes .qMore{display:block;font-size:11.5px;color:var(--orange);padding-top:7px;font-weight:500;}
-.sRes mark{background:none;color:var(--orange);padding:0;}
-
-/* rounded edges, applied over the page-level styles */
-body .tag,body .cat,body .aTag,body .tIndex a,body .nfAct a,body .sEmpty a,
-body .pTags a,body .pShare a,body .pShare button{border-radius:var(--rp);}
-body .sForm input,body .sForm button,body #sMore,body .tableWrap,
-body .prose pre,body .prose img,body .prose video,body .prose figure img,
-body .prose .note,body .prose .embed,body .prose details,body .prose table,
-body .ssView,body .ssSlide img{border-radius:var(--r);}
-body .prose blockquote{border-radius:0;}
-body .prose th{background:var(--wash);color:var(--ink);}
-body .prose code:not(pre code){border-radius:5px;}
-body .prose table{overflow:hidden;}
-body .item,body .aItem,body .sHit,body .sItem{border-radius:var(--r);}
-body .item:hover,body .aItem:hover,body .sHit:hover{border-radius:var(--r);}
-body .prose th,body .prose td{border-color:var(--line);}
-body .pTrack i{border-radius:0 0 3px 0;}
-
 </style>
+<script>
+(function(){try{var t=localStorage.getItem('rm-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+window.SITE={searchJson:"{{ '/search.json' | relative_url }}",searchPage:"{{ '/search/' | relative_url }}",home:"{{ '/' | relative_url }}",archive:"{{ '/archive/' | relative_url }}"};
+</script>
 </head>
 <body>
-<div class="pTrack"><i id="pBar"></i></div>
+<a class="skip" href="#main">پرش به محتوا</a>
+<div class="progress" aria-hidden="true"><i></i></div>
 
-<header>
-  <div class="wrap hbar">
-    <a class="logo" href="{{ '/' | relative_url }}">{{ site.title }}<b>.</b></a>
-    <nav class="hnav">
-      {% for item in site.data.nav %}<a href="{{ item.url | relative_url }}">{{ item.title }}</a>{% endfor %}
-      <a href="{{ '/archive/' | relative_url }}">آرشیو</a>
-      <a href="{{ '/search/' | relative_url }}">جست‌وجو</a>
+<header class="site-head">
+  <div class="head-in">
+    <a class="brand" href="{{ '/' | relative_url }}">
+      <span class="seal" aria-hidden="true"></span>
+      <span class="brand-name">{% assign tw = site.title | split: " " %}{% if tw.size > 1 %}{{ tw | pop | join: " " }} <span>{{ tw.last }}</span>{% else %}{{ site.title }}{% endif %}</span>
+    </a>
+    <span class="brand-no num" aria-hidden="true">پروندهٔ <span data-num>{{ site.posts.size | prepend: '0' | slice: -2, 2 }}</span></span>
+
+    <nav class="head-nav" aria-label="ناوبری اصلی">
+      <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>خانه</a>
+      {% for item in site.data.nav %}{% assign u = item.url %}{% unless u == '/' or u == '/archive/' or u == '/tags/' or u == '/search/' %}<a href="{{ u | relative_url }}"{% if page.url == u %} aria-current="page"{% endif %}>{{ item.title }}</a>{% endunless %}{% endfor %}
+      <a href="{{ '/archive/' | relative_url }}"{% if page.url == '/archive/' %} aria-current="page"{% endif %}>آرشیو</a>
+      <a href="{{ '/tags/' | relative_url }}"{% if page.url == '/tags/' %} aria-current="page"{% endif %}>برچسب‌ها</a>
+      <a href="{{ '/search/' | relative_url }}"{% if page.url == '/search/' %} aria-current="page"{% endif %}>جست‌وجو</a>
     </nav>
+
+    <div class="head-tools">
+      <button class="icon-btn" type="button" data-theme-toggle aria-label="حالت تاریک" aria-pressed="false">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1a7 7 0 000 14z" fill="currentColor"/></svg>
+      </button>
+      <button class="icon-btn nav-toggle" type="button" data-nav-open aria-expanded="false" aria-controls="drawer" aria-label="منو">
+        <i aria-hidden="true"></i>
+      </button>
+    </div>
   </div>
 </header>
 
-<div class="wrap shell">
-  <aside class="side">
-    <div class="sBlock">
-      <h3 class="sTitle">جست‌وجو</h3>
-      <div class="sSearch"><input type="search" id="q" placeholder="در نوشته‌ها بگرد…" autocomplete="off"></div>
-      <div class="sRes" id="qRes"></div>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="منو">
+  <div class="drawer-veil" data-nav-close></div>
+  <div class="drawer-panel">
+    <div class="drawer-top">
+      <span class="file">پروندهٔ <span data-num>{{ site.posts.size | prepend: '0' | slice: -2, 2 }}</span></span>
+      <button class="icon-btn" type="button" data-nav-close aria-label="بستن منو">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+      </button>
     </div>
-
-    <div class="sBlock">
-      <h3 class="sTitle">تازه‌ترین نوشته‌ها</h3>
-      {% for p in site.posts limit: 6 %}
-      <a class="sItem" href="{{ p.url | relative_url }}">
-        <em class="num">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</em>
-        <div>
-          <h4>{{ p.title }}</h4>
-          <span class="num">{{ p.date | date: "%Y/%m/%d" }}{% if p.tags.first %} · {{ p.tags.first }}{% endif %}</span>
-        </div>
-      </a>
-      {% endfor %}
-    </div>
-
-    {% assign alltags = site.tags | sort %}
-    {% if alltags.size > 0 %}
-    <div class="sBlock">
-      <h3 class="sTitle">برچسب‌ها</h3>
-      <div class="tagCloud">
-        {% for t in alltags %}<a href="{{ '/tags/#' | append: t[0] | relative_url }}">{{ t[0] }}</a>{% endfor %}
-      </div>
-    </div>
-    {% endif %}
-
-    {% if site.description %}
-    <div class="sBlock">
-      <h3 class="sTitle">دربارهٔ این‌جا</h3>
-      <p style="font-size:13px;color:var(--soft);margin:0;line-height:1.9;">{{ site.description }}</p>
-    </div>
-    {% endif %}
-  </aside>
-
-  <main>{{ content }}</main>
+    <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>خانه</a>
+    {% for item in site.data.nav %}{% assign u = item.url %}{% unless u == '/' or u == '/archive/' or u == '/tags/' or u == '/search/' %}<a href="{{ u | relative_url }}"{% if page.url == u %} aria-current="page"{% endif %}>{{ item.title }}</a>{% endunless %}{% endfor %}
+    <a href="{{ '/archive/' | relative_url }}"{% if page.url == '/archive/' %} aria-current="page"{% endif %}>آرشیو<em class="num"><span data-num>{{ site.posts.size }}</span></em></a>
+    <a href="{{ '/tags/' | relative_url }}"{% if page.url == '/tags/' %} aria-current="page"{% endif %}>برچسب‌ها<em class="num"><span data-num>{{ site.tags.size }}</span></em></a>
+    <a href="{{ '/search/' | relative_url }}"{% if page.url == '/search/' %} aria-current="page"{% endif %}>جست‌وجو</a>
+    {% if site.description %}<p class="drawer-foot">{{ site.description }}</p>{% endif %}
+  </div>
 </div>
 
-<footer class="wrap">
-  <span>{{ site.title }}{% if site.author %} · {{ site.author }}{% endif %}</span>
-  <span><a href="{{ '/feed.xml' | relative_url }}">فید RSS</a></span>
+<main id="main">{{ content }}</main>
+
+<footer class="site-foot">
+  <div class="foot-in">
+    <div class="foot-brand">
+      <span class="brand-name">{% assign tw2 = site.title | split: " " %}{% if tw2.size > 1 %}{{ tw2 | pop | join: " " }} <span>{{ tw2.last }}</span>{% else %}{{ site.title }}{% endif %}</span>
+      {% if site.description %}<p>{{ site.description }}</p>{% endif %}
+    </div>
+    <div class="foot-col">
+      <h3>ناوبری</h3>
+      <ul>
+        <li><a href="{{ '/' | relative_url }}">خانه</a></li>
+        <li><a href="{{ '/archive/' | relative_url }}">آرشیو</a></li>
+        <li><a href="{{ '/tags/' | relative_url }}">برچسب‌ها</a></li>
+        <li><a href="{{ '/search/' | relative_url }}">جست‌وجو</a></li>
+        {% for item in site.data.nav %}{% assign u = item.url %}{% unless u == '/' or u == '/archive/' or u == '/tags/' or u == '/search/' %}<li><a href="{{ u | relative_url }}">{{ item.title }}</a></li>{% endunless %}{% endfor %}
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h3>دنبال‌کردن</h3>
+      <ul>
+        <li><a href="{{ '/feed.xml' | relative_url }}">فید RSS</a></li>
+        <li><a href="{{ '/sitemap.xml' | relative_url }}">نقشهٔ سایت</a></li>
+        {% if site.author %}<li><span style="font-size:15px;color:var(--ink-3);">به‌قلم {{ site.author }}</span></li>{% endif %}
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bar">
+    <div class="foot-bar-in">
+      <span>© <time datetime="{{ site.time | date_to_xmlschema }}" data-fmt="year">{{ site.time | date: "%Y" }}</time> {{ site.title }} — همهٔ حقوق محفوظ است</span>
+      <span><span data-num>{{ site.posts.size }}</span> نوشته در آرشیو</span>
+    </div>
+  </div>
 </footer>
 
-<script>
-(function(){
-  /* reading progress — runs on anything marked data-progress */
-  var art=document.querySelector('[data-progress]'),bar=document.getElementById('pBar');
-  if(art&&bar){
-    var upd=function(){
-      var top=art.offsetTop,total=art.offsetHeight-window.innerHeight*0.4;
-      var done=window.pageYOffset-top;
-      var pct=total>0?Math.min(Math.max(done/total,0),1):0;
-      bar.style.width=(pct*100).toFixed(2)+'%';
-    };
-    upd();
-    window.addEventListener('scroll',upd,{passive:true});
-    window.addEventListener('resize',upd);
-  }
+<button class="totop" type="button" aria-label="بازگشت به بالای صفحه">
+  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 14V3M3 8l5-5 5 5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+</button>
 
-  /* wide tables get their own scroll box so author HTML can't stretch the page */
-  document.querySelectorAll('.prose table').forEach(function(t){
-    if(t.parentNode&&t.parentNode.classList.contains('tableWrap'))return;
-    var w=document.createElement('div');w.className='tableWrap';
-    t.parentNode.insertBefore(w,t);w.appendChild(t);
-  });
-
-  /* bare YouTube/Aparat iframes get a 16:9 box */
-  document.querySelectorAll('.prose iframe').forEach(function(f){
-    if(f.closest('.embed'))return;
-    if(!/youtube|youtu\.be|aparat|vimeo/.test(f.src||''))return;
-    var w=document.createElement('div');w.className='embed';
-    f.parentNode.insertBefore(w,f);w.appendChild(f);
-  });
-
-  /* slideshow */
-  document.querySelectorAll('.slideshow').forEach(function(box){
-    var kids=Array.prototype.slice.call(box.children).filter(function(el){
-      return el.tagName==='FIGURE'||el.tagName==='IMG'||el.tagName==='PICTURE';
-    });
-    if(kids.length<2)return;
-    var view=document.createElement('div');view.className='ssView';
-    var track=document.createElement('div');track.className='ssTrack';
-    kids.forEach(function(el){
-      var s;
-      if(el.tagName==='FIGURE'){s=el;}
-      else{s=document.createElement('figure');el.parentNode.insertBefore(s,el);s.appendChild(el);}
-      s.classList.add('ssSlide');track.appendChild(s);
-    });
-    view.appendChild(track);box.insertBefore(view,box.firstChild);
-
-    var barEl=document.createElement('div');barEl.className='ssBar';
-    var prev=document.createElement('button');prev.type='button';prev.textContent='قبلی';
-    var next=document.createElement('button');next.type='button';next.textContent='بعدی';
-    var dots=document.createElement('div');dots.className='ssDots';
-    var count=document.createElement('span');count.className='ssCount num';
-    kids.forEach(function(_,i){
-      var d=document.createElement('i');
-      d.addEventListener('click',function(){go(i);});
-      dots.appendChild(d);
-    });
-    barEl.appendChild(prev);barEl.appendChild(next);barEl.appendChild(dots);barEl.appendChild(count);
-    box.appendChild(barEl);
-
-    var at=0,n=kids.length;
-    function go(i){
-      at=Math.min(Math.max(i,0),n-1);
-      track.style.transform='translateX('+(at*100)+'%)';
-      count.textContent=(at+1)+' از '+n;
-      prev.disabled=at===0;next.disabled=at===n-1;
-      dots.querySelectorAll('i').forEach(function(d,k){d.classList.toggle('on',k===at);});
-    }
-    prev.addEventListener('click',function(){go(at-1);});
-    next.addEventListener('click',function(){go(at+1);});
-
-    var x0=null;
-    view.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
-    view.addEventListener('touchend',function(e){
-      if(x0===null)return;
-      var dx=e.changedTouches[0].clientX-x0;
-      if(Math.abs(dx)>45)go(dx<0?at+1:at-1);
-      x0=null;
-    },{passive:true});
-
-    box.setAttribute('tabindex','0');
-    box.addEventListener('keydown',function(e){
-      if(e.key==='ArrowLeft')go(at+1);
-      else if(e.key==='ArrowRight')go(at-1);
-    });
-    box.classList.add('ready');go(0);
-  });
-
-  /* Persian-aware search index, shared by the sidebar and /search/ */
-  window.siteSearch=(function(){
-    var data=null,loading=null;
-    var JSON_URL='{{ "/search.json" | relative_url }}';
-    function norm(s){
-      return String(s||'')
-        .replace(/[\u064A\u0649]/g,'\u06CC')
-        .replace(/\u0643/g,'\u06A9')
-        .replace(/[\u0622\u0623\u0625]/g,'\u0627')
-        .replace(/\u0629/g,'\u0647')
-        .replace(/[\u064B-\u0652\u0670\u0640]/g,'')
-        .replace(/[\u200B-\u200F\u202A-\u202E]/g,' ')
-        .replace(/[\u06F0-\u06F9]/g,function(d){return String.fromCharCode(d.charCodeAt(0)-1776+48);})
-        .replace(/[\u0660-\u0669]/g,function(d){return String.fromCharCode(d.charCodeAt(0)-1632+48);})
-        .replace(/\s+/g,' ').toLowerCase().trim();
-    }
-    function join(s){return norm(s).replace(/[\s\u200c]+/g,'');}
-    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-    function load(){
-      if(data)return Promise.resolve(data);
-      if(loading)return loading;
-      loading=fetch(JSON_URL).then(function(r){return r.json();}).then(function(list){
-        data=list.map(function(p){
-          var all=p.title+' '+p.description+' '+p.tags+' '+p.body;
-          return {raw:p,nt:norm(p.title),ntj:join(p.title),hay:norm(all),hayj:join(all)};
-        });
-        return data;
-      }).catch(function(){data=[];return data;});
-      return loading;
-    }
-    function query(v){
-      var words=norm(v).split(' ').filter(Boolean);
-      if(!words.length||!data)return [];
-      var out=[];
-      data.forEach(function(d){
-        var score=0,all=true;
-        words.forEach(function(w){
-          var wj=w.replace(/[\s\u200c]+/g,'');
-          if(d.nt.indexOf(w)>-1||d.ntj.indexOf(wj)>-1)score+=8;
-          else if(d.hay.indexOf(w)>-1||d.hayj.indexOf(wj)>-1)score+=2;
-          else all=false;
-        });
-        if(all)out.push({p:d.raw,score:score,words:words});
-      });
-      return out.sort(function(a,b){return b.score-a.score;});
-    }
-    function mark(txt,words){
-      var out=esc(txt);
-      words.forEach(function(w){
-        if(!w)return;
-        var pat=w.split('').map(function(c){
-          var e=c.replace(/[.*+?^{}()|[\]\\$]/g,'\\$&');
-          if(c==='\u06CC')e='[\u06CC\u064A\u0649]';
-          if(c==='\u06A9')e='[\u06A9\u0643]';
-          if(c==='\u0627')e='[\u0627\u0622\u0623\u0625]';
-          return e;
-        }).join('\u200c?');
-        try{out=out.replace(new RegExp(pat,'gi'),function(m){return '<mark>'+m+'</mark>';});}catch(e){}
-      });
-      return out;
-    }
-    function snippet(hit){
-      var body=String(hit.p.body||'');
-      if(!body)return '';
-      var n=norm(body),k=n.indexOf(hit.words[0]);
-      var start=k>80?k-70:0;
-      var txt=(start>0?'\u2026':'')+body.slice(start,start+200).trim()+'\u2026';
-      return mark(txt,hit.words);
-    }
-    return {load:load,query:query,mark:mark,snippet:snippet,norm:norm,join:join,esc:esc};
-  })();
-
-  /* sidebar search */
-  var q=document.getElementById('q'),res=document.getElementById('qRes');
-  var SEARCH_URL='{{ "/search/" | relative_url }}';
-  if(q){
-    var run=function(){
-      var v=q.value.trim();
-      if(!v){res.innerHTML='';return;}
-      var hits=window.siteSearch.query(v);
-      if(!hits.length){res.innerHTML='<p>چیزی پیدا نشد.</p>';return;}
-      res.innerHTML=hits.slice(0,6).map(function(h){
-        return '<a href="'+h.p.url+'">'+window.siteSearch.mark(h.p.title,h.words)+'</a>';
-      }).join('')+'<a class="qMore" href="'+SEARCH_URL+'?q='+encodeURIComponent(v)+'">همهٔ نتایج ('+hits.length+')</a>';
-    };
-    var deb=null;
-    q.addEventListener('focus',function(){window.siteSearch.load();});
-    q.addEventListener('input',function(){
-      clearTimeout(deb);
-      deb=setTimeout(function(){window.siteSearch.load().then(run);},160);
-    });
-    q.addEventListener('keydown',function(e){
-      if(e.key==='Enter'&&q.value.trim()){location.href=SEARCH_URL+'?q='+encodeURIComponent(q.value.trim());}
-    });
-  }
-})();
-</script>
+<script src="{{ '/assets/theme.js' | relative_url }}" defer></script>
 {% if site.goatcounter %}<script data-goatcounter="https://{{ site.goatcounter }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>{% endif %}
 </body>
 </html>

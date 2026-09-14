@@ -2,80 +2,166 @@
 layout: default
 ---
 {% assign posts = site.posts %}
-{% if posts.size > 0 %}
+{% assign total = posts.size %}
+{% if total > 0 %}
 {% assign lead = posts.first %}
-<section class="hero">
-  {% if lead.tags.first %}<div class="tag">{{ lead.tags.first }}</div>{% endif %}
-  <h1><a href="{{ lead.url | relative_url }}">{{ lead.title }}</a></h1>
-  {% if lead.description %}<p>{{ lead.description }}</p>{% endif %}
-  <div class="heroMeta num">
-    <span>{{ lead.date | date: "%Y/%m/%d" }}</span>
-    <span>{{ lead.content | number_of_words | divided_by: 200 | plus: 1 }} دقیقه خواندن</span>
-    {% if lead.tags.size > 1 %}<span>{{ lead.tags | join: " · " }}</span>{% endif %}
-  </div>
-</section>
+{% assign leadCover = lead.image | default: lead.cover %}
+{% if leadCover %}{% if leadCover contains '://' %}{% assign leadSrc = leadCover %}{% else %}{% assign leadSrc = leadCover | relative_url %}{% endif %}{% endif %}
 
-{% assign rest = posts | slice: 1, 40 %}
-{% if rest.size > 0 %}
-<div class="sect">
-  <h2>تازه‌ترین</h2>
-  <span class="num">{{ rest.size }} نوشته</span>
-</div>
-{% for p in rest %}
-<a class="item" href="{{ p.url | relative_url }}">
-  <div class="idx num">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</div>
-  <div>
-    <h3>{{ p.title }}</h3>
-    {% if p.description %}<p>{{ p.description }}</p>{% endif %}
-    {% if p.tags.first %}<span class="cat">{{ p.tags.first }}</span>{% endif %}
+<div class="wrap">
+
+  <div class="masthead">
+    {% if site.description %}<span><b>{{ site.description }}</b></span>{% endif %}
+    <span class="sp">آخرین به‌روزرسانی · <time datetime="{{ lead.date | date_to_xmlschema }}">{{ lead.date | date: "%Y/%m/%d" }}</time></span>
+    <span><span data-num>{{ total }}</span> نوشته</span>
   </div>
-  <div class="imeta num">{{ p.date | date: "%Y/%m/%d" }} · {{ p.content | number_of_words | divided_by: 200 | plus: 1 }} دقیقه</div>
-</a>
-{% endfor %}
-{% endif %}
+
+  <section class="hero" aria-labelledby="lead-title">
+    <div class="hero-body">
+      <div class="hero-top">
+        <span class="seal" aria-hidden="true"></span>
+        <span class="file num">پروندهٔ <span data-num>{{ total | prepend: '0' | slice: -2, 2 }}</span></span>
+        {% if lead.tags.first %}<span class="eyebrow">{{ lead.tags.first }}</span>{% endif %}
+      </div>
+      <h1 id="lead-title"><a href="{{ lead.url | relative_url }}">{{ lead.title }}</a></h1>
+      {% if lead.description %}<p class="hero-deck">{{ lead.description }}</p>{% endif %}
+      <div class="hero-meta meta">
+        <time datetime="{{ lead.date | date_to_xmlschema }}">{{ lead.date | date: "%Y/%m/%d" }}</time>
+        <span class="dot" aria-hidden="true"></span>
+        <span><span data-num>{{ lead.content | number_of_words | divided_by: 200 | plus: 1 }}</span> دقیقه خواندن</span>
+        {% if site.author %}<span class="dot" aria-hidden="true"></span><span>{{ site.author }}</span>{% endif %}
+      </div>
+      <a class="btn btn-accent hero-read" href="{{ lead.url | relative_url }}">خواندن این پرونده</a>
+    </div>
+
+    {% if leadSrc %}
+    <figure class="hero-fig">
+      <img src="{{ leadSrc }}" alt="{{ lead.title | strip_html }}" decoding="async" fetchpriority="high">
+      {% if lead.image_caption %}<figcaption class="cap">{{ lead.image_caption }}</figcaption>{% endif %}
+    </figure>
+    {% else %}
+    <div class="compose" aria-hidden="true">
+      <div class="compose-grid">{% for i in (1..9) %}<i></i>{% endfor %}</div>
+      <div class="compose-stamp"><i></i><span class="num" data-num>{{ total | prepend: '0' | slice: -2, 2 }}</span></div>
+      <div class="compose-foot"><span class="seal"></span><span>{{ site.title }}</span></div>
+      {% if lead.tags.first %}<div class="compose-tag">{{ lead.tags.first }}</div>{% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+  {% assign feats = posts | where: "featured", true %}
+  {% assign featShown = 0 %}
+  {% for p in feats %}{% unless p.url == lead.url %}{% assign featShown = featShown | plus: 1 %}{% endunless %}{% endfor %}
+  {% if featShown > 0 %}
+  <section class="feat reveal">
+    <div class="shead">
+      <h2>منتخب‌ها</h2>
+      <span class="c"><span data-num>{{ featShown }}</span> پرونده</span>
+    </div>
+    <div class="feat-row">
+      {% for p in feats limit: 3 %}{% unless p.url == lead.url %}
+      <a class="feat-item" href="{{ p.url | relative_url }}">
+        <span class="file num">{% if p.tags.first %}{{ p.tags.first }}{% else %}نوشته{% endif %}</span>
+        <h3>{{ p.title }}</h3>
+        <span class="meta" style="font-size:13.5px;color:var(--ink-3);">
+          <time datetime="{{ p.date | date_to_xmlschema }}" data-fmt="short">{{ p.date | date: "%Y/%m/%d" }}</time>
+        </span>
+      </a>
+      {% endunless %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if total > 1 %}
+  {% assign rest = posts | slice: 1, 60 %}
+  <section class="feed">
+    <div class="shead">
+      <h2>تازه‌ترین نوشته‌ها</h2>
+      <span class="c"><span data-num>{{ rest.size }}</span> نوشته</span>
+    </div>
+    <div class="feed-grid">
+      {% for p in rest %}
+      {% assign c = p.image | default: p.cover %}
+      {% if c %}{% if c contains '://' %}{% assign cSrc = c %}{% else %}{% assign cSrc = c | relative_url %}{% endif %}{% else %}{% assign cSrc = nil %}{% endif %}
+      {% assign no = total | minus: forloop.index %}
+      <a class="card reveal{% if forloop.first %} card-lead{% endif %}" href="{{ p.url | relative_url }}">
+        <figure class="card-fig">
+          {% if cSrc %}
+          <img src="{{ cSrc }}" alt="{{ p.title | strip_html }}" loading="lazy" decoding="async">
+          {% else %}
+          <div class="mini"><b><span class="num" data-num>{{ no | prepend: '0' | slice: -2, 2 }}</span></b></div>
+          {% endif %}
+        </figure>
+        <span class="card-no num">
+          <span data-num>{{ no | prepend: '0' | slice: -2, 2 }}</span>
+          {% if p.tags.first %}<span style="color:var(--accent);">{{ p.tags.first }}</span>{% endif %}
+        </span>
+        <h3>{{ p.title }}</h3>
+        {% if p.description %}<p>{{ p.description }}</p>{% endif %}
+        <span class="meta">
+          <time datetime="{{ p.date | date_to_xmlschema }}">{{ p.date | date: "%Y/%m/%d" }}</time>
+          <span class="dot" aria-hidden="true"></span>
+          <span><span data-num>{{ p.content | number_of_words | divided_by: 200 | plus: 1 }}</span> دقیقه</span>
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <div class="strips">
+    {% assign alltags = site.tags | sort %}
+    {% if alltags.size > 0 %}
+    <section class="reveal">
+      <div class="shead">
+        <h2>برچسب‌های پرتکرار</h2>
+        <span class="c"><span data-num>{{ alltags.size }}</span> برچسب</span>
+      </div>
+      <div class="cloud">
+        {% for t in alltags limit: 14 %}
+        <a class="{% if t[1].size > 4 %}s3{% elsif t[1].size > 1 %}s2{% else %}s1{% endif %}" href="{{ '/tags/#' | append: t[0] | relative_url }}">{{ t[0] }} <em class="num" data-num>{{ t[1].size }}</em></a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="about reveal">
+      <div class="shead">
+        <h2>دربارهٔ این‌جا</h2>
+        <span class="c">{{ site.title }}</span>
+      </div>
+      {% if site.description %}<p>{{ site.description }}</p>{% endif %}
+      <dl>
+        {% if site.author %}<dt>نویسنده</dt><dd>{{ site.author }}</dd>{% endif %}
+        <dt>شمار نوشته‌ها</dt><dd><span data-num>{{ total }}</span></dd>
+        {% assign oldest = posts.last %}
+        <dt>نخستین نوشته</dt><dd><time datetime="{{ oldest.date | date_to_xmlschema }}">{{ oldest.date | date: "%Y/%m/%d" }}</time></dd>
+        <dt>فید</dt><dd><a href="{{ '/feed.xml' | relative_url }}" style="color:var(--accent);border-bottom:1px solid currentColor;">RSS</a></dd>
+      </dl>
+    </section>
+  </div>
+
+  <section class="cta reveal">
+    <div class="cta-t">
+      <h2>همهٔ پرونده‌ها، به‌ترتیب سال</h2>
+      <p>آرشیو کامل نوشته‌ها با فیلتر سال و برچسب.</p>
+    </div>
+    <span class="cta-no num" aria-hidden="true"><span data-num>{{ total | prepend: '0' | slice: -2, 2 }}</span></span>
+    <a class="btn" href="{{ '/archive/' | relative_url }}">رفتن به آرشیو</a>
+  </section>
+
+</div>
 
 {% else %}
-<div class="empty">
-  <h1>هنوز نوشته‌ای نیست</h1>
-  <p>اولین نوشته را از پنل مدیریت منتشر کن تا این‌جا بیاید.</p>
+<div class="wrap">
+  <div class="empty">
+    <div class="hero-top">
+      <span class="seal" aria-hidden="true"></span>
+      <span class="file">پروندهٔ <span data-num>00</span></span>
+    </div>
+    <h1>هنوز پرونده‌ای باز نشده</h1>
+    <p>نخستین نوشته را از پنل مدیریت منتشر کن تا این‌جا بیاید.</p>
+    <a class="btn btn-accent" href="{{ '/feed.xml' | relative_url }}">فید RSS</a>
+  </div>
 </div>
 {% endif %}
-
-<style>
-.hero{padding:44px 0 40px;border-bottom:1px solid var(--line);}
-.tag{display:inline-block;background:var(--orange);color:#fff;font-size:11.5px;
-  font-weight:700;padding:5px 12px;margin-bottom:20px;}
-.hero h1{font-family:var(--fhead);font-size:clamp(34px,6.4vw,76px);font-weight:900;
-  margin:0 0 20px;line-height:1;letter-spacing:-.035em;max-width:17ch;text-wrap:balance;}
-.hero h1 a:hover{color:var(--orange);}
-.hero p{font-size:clamp(15.5px,1.7vw,19px);font-weight:300;color:var(--soft);
-  max-width:58ch;margin:0 0 24px;line-height:1.85;text-wrap:pretty;}
-.heroMeta{display:flex;gap:20px;flex-wrap:wrap;font-size:12.5px;color:var(--faint);
-  padding-top:16px;border-top:1px solid var(--line);}
-.sect{display:flex;justify-content:space-between;align-items:baseline;padding:32px 0 12px;}
-.sect h2{font-size:12.5px;font-weight:700;letter-spacing:.14em;margin:0;}
-.sect span{font-size:12px;color:var(--faint);}
-.item{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:baseline;
-  padding:24px 0;border-top:1px solid var(--line);transition:background .12s,padding .12s;}
-.item:last-of-type{border-bottom:1px solid var(--line);}
-.item:hover{background:var(--ink);color:var(--bg);padding-right:16px;padding-left:16px;}
-.item:hover .idx,.item:hover .imeta{color:var(--orange);}
-.item:hover .cat{background:var(--orange);color:#fff;border-color:var(--orange);}
-.item:hover p{color:#C9C6BE;}
-.idx{font-size:12.5px;font-weight:700;color:var(--faint);padding-top:8px;}
-.item h3{font-family:var(--fhead);font-size:clamp(21px,2.9vw,34px);font-weight:700;
-  margin:0 0 9px;line-height:1.15;letter-spacing:-.025em;text-wrap:balance;}
-.item p{margin:0 0 11px;font-size:13.5px;font-weight:300;color:var(--soft);
-  max-width:62ch;line-height:1.8;}
-.cat{display:inline-block;font-size:11px;font-weight:600;border:1px solid var(--line);
-  padding:3px 10px;}
-.imeta{font-size:12px;color:var(--faint);white-space:nowrap;padding-top:11px;}
-.empty{padding:70px 0;}
-.empty h1{font-family:var(--fhead);font-size:clamp(28px,5vw,52px);font-weight:900;
-  margin:0 0 12px;letter-spacing:-.03em;}
-.empty p{color:var(--soft);font-weight:300;margin:0;}
-@media(max-width:720px){
-  .item{grid-template-columns:1fr;gap:7px;}
-  .idx,.imeta{padding:0;}
-}
-</style>

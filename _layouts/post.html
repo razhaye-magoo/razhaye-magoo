@@ -1,112 +1,121 @@
 ---
 layout: default
 ---
-<article data-progress>
-  <header class="pHead">
-    {% if page.tags.first %}<div class="tag">{{ page.tags.first }}</div>{% endif %}
-    <h1>{{ page.title }}</h1>
-    {% if page.description %}<p class="pDeck">{{ page.description }}</p>{% endif %}
-    <div class="pMeta num">
-      <span>{{ page.date | date: "%Y/%m/%d" }}</span>
-      <span>{{ content | number_of_words | divided_by: 200 | plus: 1 }} دقیقه خواندن</span>
-      {% if site.author %}<span>{{ site.author }}</span>{% endif %}
-    </div>
-  </header>
+{% assign cover = page.image | default: page.cover %}
+{% if cover %}{% if cover contains '://' %}{% assign coverSrc = cover %}{% else %}{% assign coverSrc = cover | relative_url %}{% endif %}{% endif %}
+{% assign fileNo = 0 %}
+{% for p in site.posts reversed %}{% if p.url == page.url %}{% assign fileNo = forloop.index %}{% endif %}{% endfor %}
 
-  <div class="prose">{{ content }}</div>
-
-  {% if page.tags.size > 0 %}
-  <div class="pTags">
-    {% for t in page.tags %}<a href="{{ '/tags/#' | append: t | relative_url }}">{{ t }}</a>{% endfor %}
-  </div>
-  {% endif %}
-
-  <div class="pShare">
-    <span>هم‌رسانی</span>
-    <a href="https://t.me/share/url?url={{ page.url | absolute_url | uri_escape }}&text={{ page.title | uri_escape }}" target="_blank" rel="noopener">تلگرام</a>
-    <a href="https://twitter.com/intent/tweet?url={{ page.url | absolute_url | uri_escape }}&text={{ page.title | uri_escape }}" target="_blank" rel="noopener">ایکس</a>
-    <a href="https://wa.me/?text={{ page.title | uri_escape }}%20{{ page.url | absolute_url | uri_escape }}" target="_blank" rel="noopener">واتس‌اپ</a>
-    <button type="button" id="copyLink" data-url="{{ page.url | absolute_url }}">کپی نشانی</button>
-  </div>
-</article>
-
-{% assign related = "" | split: "" %}
-{% for t in page.tags %}
-  {% assign hits = site.tags[t] %}
-  {% if hits %}{% assign related = related | concat: hits %}{% endif %}
-{% endfor %}
-{% assign related = related | uniq %}
-{% assign relCount = related.size | minus: 1 %}
-{% if relCount > 0 %}
-<section class="pRel">
-  <h2 class="sect2">خواندن بیشتر</h2>
-  {% assign shown = 0 %}
-  {% for p in related %}
-    {% if p.url != page.url and shown < 3 %}
-    <a class="relItem" href="{{ p.url | relative_url }}">
-      <h3>{{ p.title }}</h3>
-      <span class="num">{{ p.date | date: "%Y/%m/%d" }}</span>
-    </a>
-    {% assign shown = shown | plus: 1 %}
-    {% endif %}
-  {% endfor %}
-</section>
+{% if coverSrc %}
+<figure class="cover">
+  <img src="{{ coverSrc }}" alt="{{ page.title | strip_html }}" decoding="async" fetchpriority="high">
+  {% if page.image_caption %}<figcaption class="cap">{{ page.image_caption }}</figcaption>{% endif %}
+</figure>
 {% endif %}
 
-<nav class="pNav">
-  {% if page.next %}<a class="pnPrev" href="{{ page.next.url | relative_url }}"><em>نوشتهٔ بعدی</em><span>{{ page.next.title }}</span></a>{% else %}<span></span>{% endif %}
-  {% if page.previous %}<a class="pnNext" href="{{ page.previous.url | relative_url }}"><em>نوشتهٔ پیشین</em><span>{{ page.previous.title }}</span></a>{% endif %}
-</nav>
+<div class="wrap">
+  <article data-progress>
+    <header class="article-head">
+      <div class="hero-top">
+        <span class="seal" aria-hidden="true"></span>
+        <span class="file num">پروندهٔ <span data-num>{{ fileNo | prepend: '0' | slice: -2, 2 }}</span></span>
+        {% if page.tags.first %}<a class="eyebrow" href="{{ '/tags/#' | append: page.tags.first | relative_url }}">{{ page.tags.first }}</a>{% endif %}
+      </div>
+      <h1>{{ page.title }}</h1>
+      {% if page.description %}<p class="article-deck">{{ page.description }}</p>{% endif %}
+      <dl class="article-meta">
+        <div>
+          <dt>تاریخ انتشار</dt>
+          <dd class="v"><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y/%m/%d" }}</time></dd>
+        </div>
+        {% if page.modified %}
+        <div>
+          <dt>آخرین ویرایش</dt>
+          <dd class="v"><time datetime="{{ page.modified | date_to_xmlschema }}">{{ page.modified | date: "%Y/%m/%d" }}</time></dd>
+        </div>
+        {% endif %}
+        {% if site.author %}
+        <div>
+          <dt>نویسنده</dt>
+          <dd class="v">{{ page.author | default: site.author }}</dd>
+        </div>
+        {% endif %}
+        <div>
+          <dt>زمان خواندن</dt>
+          <dd class="v"><span data-num>{{ content | number_of_words | divided_by: 200 | plus: 1 }}</span> دقیقه</dd>
+        </div>
+      </dl>
+    </header>
 
-<style>
-.pHead{padding:36px 0 26px;border-bottom:1px solid var(--line);margin-bottom:30px;}
-.tag{display:inline-block;background:var(--orange);color:#fff;font-size:11.5px;
-  font-weight:700;padding:5px 12px;margin-bottom:18px;}
-.pHead h1{font-family:var(--fhead);font-size:clamp(30px,5.4vw,62px);font-weight:900;
-  margin:0 0 18px;line-height:1.02;letter-spacing:-.035em;max-width:20ch;text-wrap:balance;}
-.pDeck{font-size:clamp(15.5px,1.7vw,19px);font-weight:300;color:var(--soft);
-  max-width:60ch;margin:0 0 22px;line-height:1.85;text-wrap:pretty;}
-.pMeta{display:flex;gap:20px;flex-wrap:wrap;font-size:12.5px;color:var(--faint);
-  padding-top:15px;border-top:1px solid var(--hair);}
-article .prose{max-width:68ch;}
-.pTags{display:flex;flex-wrap:wrap;gap:7px;margin:40px 0 0;}
-.pTags a{font-size:12px;border:1px solid var(--line);padding:4px 12px;}
-.pTags a:hover{background:var(--orange);border-color:var(--orange);color:#fff;}
-.pShare{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:26px;
-  padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;}
-.pShare span{color:var(--faint);margin-left:5px;}
-.pShare a,.pShare button{font-family:var(--fbody);font-size:12.5px;cursor:pointer;
-  border:1px solid var(--line);background:transparent;color:var(--ink);padding:5px 13px;}
-.pShare a:hover,.pShare button:hover{background:var(--orange);border-color:var(--orange);color:#fff;}
-.sect2{font-size:12.5px;font-weight:700;letter-spacing:.14em;margin:0 0 4px;}
-.pRel{margin-top:52px;}
-.relItem{display:flex;justify-content:space-between;align-items:baseline;gap:18px;
-  padding:18px 0;border-top:1px solid var(--line);transition:background .12s,padding .12s;}
-.pRel .relItem:last-child{border-bottom:1px solid var(--line);}
-.relItem:hover{background:var(--ink);color:var(--bg);padding-right:14px;padding-left:14px;}
-.relItem:hover span{color:var(--orange);}
-.relItem h3{font-family:var(--fhead);font-size:clamp(18px,2.3vw,25px);font-weight:700;
-  margin:0;line-height:1.2;letter-spacing:-.02em;}
-.relItem span{font-size:12px;color:var(--faint);white-space:nowrap;}
-.pNav{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:52px;
-  padding-top:22px;border-top:4px solid var(--line);}
-.pNav a{display:block;}
-.pnNext{text-align:left;}
-.pNav em{display:block;font-style:normal;font-size:11.5px;letter-spacing:.1em;
-  color:var(--orange);font-weight:600;margin-bottom:6px;}
-.pNav span{font-family:var(--fhead);font-size:17px;font-weight:600;line-height:1.35;
-  letter-spacing:-.015em;}
-@media(max-width:720px){.pNav{grid-template-columns:1fr;}.pnNext{text-align:right;}}
-</style>
-<script>
-(function(){
-  var b=document.getElementById('copyLink');
-  if(!b)return;
-  b.addEventListener('click',function(){
-    var t=b.textContent;
-    navigator.clipboard.writeText(b.dataset.url).then(function(){
-      b.textContent='کپی شد';setTimeout(function(){b.textContent=t;},1600);
-    });
-  });
-})();
-</script>
+    <div class="article-shell">
+      <div class="article-body">
+        <div class="prose">{{ content }}</div>
+
+        {% if page.tags.size > 0 %}
+        <div class="post-tags">
+          <span class="k">برچسب‌ها</span>
+          {% for t in page.tags %}<a class="tagpill" href="{{ '/tags/#' | append: t | relative_url }}">{{ t }}</a>{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="share">
+          <span class="k">هم‌رسانی</span>
+          <a href="https://t.me/share/url?url={{ page.url | absolute_url | uri_escape }}&text={{ page.title | uri_escape }}" target="_blank" rel="noopener">تلگرام</a>
+          <a href="https://twitter.com/intent/tweet?url={{ page.url | absolute_url | uri_escape }}&text={{ page.title | uri_escape }}" target="_blank" rel="noopener">ایکس</a>
+          <a href="https://wa.me/?text={{ page.title | uri_escape }}%20{{ page.url | absolute_url | uri_escape }}" target="_blank" rel="noopener">واتس‌اپ</a>
+          <button type="button" data-copy-url="{{ page.url | absolute_url }}">کپی نشانی</button>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="فهرست مطالب">
+        <h2>در این نوشته</h2>
+        <ol></ol>
+      </nav>
+    </div>
+  </article>
+
+  {% assign pool = "" | split: "" %}
+  {% for t in page.tags %}{% assign hits = site.tags[t] %}{% if hits %}{% assign pool = pool | concat: hits %}{% endif %}{% endfor %}
+  {% assign pool = pool | uniq %}
+  {% assign relCount = 0 %}
+  {% for p in pool %}{% if p.url != page.url %}{% assign relCount = relCount | plus: 1 %}{% endif %}{% endfor %}
+  {% if relCount > 0 %}
+  <section class="related reveal">
+    <div class="shead">
+      <h2>خواندن بیشتر</h2>
+      <span class="c"><span data-num>{{ relCount }}</span> نوشتهٔ مرتبط</span>
+    </div>
+    <div class="rel-grid">
+      {% assign shown = 0 %}
+      {% for p in pool %}
+        {% if p.url != page.url and shown < 3 %}
+        {% assign rc = p.image | default: p.cover %}
+        {% if rc %}{% if rc contains '://' %}{% assign rcSrc = rc %}{% else %}{% assign rcSrc = rc | relative_url %}{% endif %}{% else %}{% assign rcSrc = nil %}{% endif %}
+        {% assign rno = 0 %}
+        {% for q in site.posts reversed %}{% if q.url == p.url %}{% assign rno = forloop.index %}{% endif %}{% endfor %}
+        <a class="rel-item" href="{{ p.url | relative_url }}">
+          {% if rcSrc %}
+          <img src="{{ rcSrc }}" alt="{{ p.title | strip_html }}" loading="lazy" decoding="async">
+          {% else %}
+          <div class="mini"><b><span class="num" data-num>{{ rno | prepend: '0' | slice: -2, 2 }}</span></b></div>
+          {% endif %}
+          <h3>{{ p.title }}</h3>
+          {% if p.description %}<p>{{ p.description | strip_html | truncate: 110 }}</p>{% endif %}
+          <span class="meta"><time datetime="{{ p.date | date_to_xmlschema }}" data-fmt="short">{{ p.date | date: "%Y/%m/%d" }}</time></span>
+        </a>
+        {% assign shown = shown | plus: 1 %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <nav class="pager" aria-label="نوشتهٔ پیشین و بعدی">
+    {% if page.next %}
+    <a href="{{ page.next.url | relative_url }}" rel="next"><em>نوشتهٔ بعدی</em><span>{{ page.next.title }}</span></a>
+    {% else %}<div class="blank"></div>{% endif %}
+    {% if page.previous %}
+    <a class="nxt" href="{{ page.previous.url | relative_url }}" rel="prev"><em>نوشتهٔ پیشین</em><span>{{ page.previous.title }}</span></a>
+    {% else %}<div class="blank"></div>{% endif %}
+  </nav>
+</div>

@@ -6,6 +6,8 @@ permalink: /search.json
 "title": {{ p.title | jsonify }},
 "url": {{ p.url | relative_url | jsonify }},
 "date": {{ p.date | date: "%Y/%m/%d" | jsonify }},
+"iso": {{ p.date | date_to_xmlschema | jsonify }},
+"image": {{ p.image | default: p.cover | default: "" | jsonify }},
 "description": {{ p.description | default: "" | jsonify }},
 "tags": {{ p.tags | join: " " | jsonify }},
 "body": {{ p.content | strip_html | normalize_whitespace | truncate: 1400 | jsonify }}

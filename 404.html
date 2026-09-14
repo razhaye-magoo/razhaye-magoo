@@ -2,24 +2,23 @@
 layout: default
 title: صفحه پیدا نشد
 permalink: /404.html
+noindex: true
 ---
-<div class="nf">
-  <div class="nfCode num">۴۰۴</div>
-  <h1>این نشانی به جایی نمی‌رسد</h1>
-  <p>شاید نوشته جابه‌جا شده یا نشانی اشتباه تایپ شده باشد.</p>
-  <div class="nfAct">
-    <a href="{{ '/' | relative_url }}">بازگشت به خانه</a>
-    <a href="{{ '/archive/' | relative_url }}">آرشیو نوشته‌ها</a>
+<div class="wrap">
+  <div class="nf">
+    <span class="nf-no num" aria-hidden="true"><span data-num>404</span></span>
+    <div>
+      <div class="hero-top">
+        <span class="seal" aria-hidden="true"></span>
+        <span class="file">پروندهٔ مفقود</span>
+      </div>
+      <h1>این نشانی به جایی نمی‌رسد</h1>
+      <p>شاید نوشته جابه‌جا شده، یا نشانی اشتباه تایپ شده باشد. از آرشیو یا جست‌وجو دنبالش بگرد.</p>
+      <div class="nf-acts">
+        <a class="btn btn-accent" href="{{ '/' | relative_url }}">بازگشت به خانه</a>
+        <a class="btn" href="{{ '/archive/' | relative_url }}">آرشیو نوشته‌ها</a>
+        <a class="btn" href="{{ '/search/' | relative_url }}">جست‌وجو</a>
+      </div>
+    </div>
   </div>
 </div>
-<style>
-.nf{padding:80px 0 90px;}
-.nfCode{font-family:var(--fhead);font-size:clamp(70px,16vw,170px);font-weight:900;
-  line-height:.85;letter-spacing:-.05em;color:var(--orange);margin-bottom:22px;}
-.nf h1{font-family:var(--fhead);font-size:clamp(26px,4.4vw,46px);font-weight:900;
-  margin:0 0 12px;letter-spacing:-.03em;line-height:1.05;max-width:16ch;}
-.nf p{color:var(--soft);font-weight:300;margin:0 0 26px;max-width:50ch;}
-.nfAct{display:flex;gap:9px;flex-wrap:wrap;}
-.nfAct a{font-size:13px;border:1px solid var(--line);padding:9px 18px;font-weight:500;}
-.nfAct a:hover{background:var(--orange);border-color:var(--orange);color:#fff;}
-</style>

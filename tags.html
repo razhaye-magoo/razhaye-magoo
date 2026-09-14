@@ -1,50 +1,58 @@
 ---
 layout: default
 title: برچسب‌ها
+description: نوشته‌ها بر پایهٔ برچسب، همراه شمار هر برچسب.
 permalink: /tags/
 ---
-<header class="gHead">
-  <h1>برچسب‌ها</h1>
-</header>
-
 {% assign tags = site.tags | sort %}
-{% if tags.size > 0 %}
-<div class="tIndex">
-  {% for t in tags %}<a href="#{{ t[0] }}">{{ t[0] }} <em class="num">{{ t[1].size }}</em></a>{% endfor %}
-</div>
+<div class="wrap">
+  <header class="page-head">
+    <div class="hero-top">
+      <span class="seal" aria-hidden="true"></span>
+      <span class="file">فهرست موضوعی</span>
+    </div>
+    <h1>برچسب‌ها</h1>
+    <div class="meta">
+      <span><span data-num>{{ tags.size }}</span> برچسب</span>
+      <span class="dot" aria-hidden="true"></span>
+      <span><span data-num>{{ site.posts.size }}</span> نوشته</span>
+    </div>
+  </header>
 
-{% for t in tags %}
-<section class="tSec" id="{{ t[0] }}">
-  <h2>{{ t[0] }}</h2>
-  {% for p in t[1] %}
-  <a class="aItem" href="{{ p.url | relative_url }}">
-    <span class="aDate num">{{ p.date | date: "%Y/%m/%d" }}</span>
-    <span class="aTitle">{{ p.title }}</span>
-  </a>
+  {% if tags.size > 0 %}
+  <div class="tag-index">
+    {% for t in tags %}
+    <a class="tag-card" href="#{{ t[0] }}">
+      <b>{{ t[0] }}</b>
+      <em class="num"><span data-num>{{ t[1].size }}</span> نوشته</em>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% for t in tags %}
+  <section class="tag-sec" id="{{ t[0] }}">
+    <div class="year-head">
+      <h2>{{ t[0] }}</h2>
+      <span><span data-num>{{ t[1].size }}</span> نوشته</span>
+    </div>
+    {% for p in t[1] %}
+    <a class="line" href="{{ p.url | relative_url }}">
+      <span class="line-d num"><time datetime="{{ p.date | date_to_xmlschema }}" data-fmt="short">{{ p.date | date: "%Y/%m/%d" }}</time></span>
+      <span class="line-t">{{ p.title }}</span>
+      <span class="line-x"><span data-num>{{ p.content | number_of_words | divided_by: 200 | plus: 1 }}</span> دقیقه</span>
+    </a>
+    {% endfor %}
+  </section>
   {% endfor %}
-</section>
-{% endfor %}
-{% else %}
-<p style="color:var(--soft);padding:40px 0;">هنوز برچسبی ساخته نشده.</p>
-{% endif %}
-
-<style>
-.gHead{padding:36px 0 22px;border-bottom:1px solid var(--line);margin-bottom:22px;}
-.gHead h1{font-family:var(--fhead);font-size:clamp(30px,5vw,56px);font-weight:900;
-  margin:0;letter-spacing:-.035em;line-height:1;}
-.tIndex{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
-.tIndex a{font-size:12.5px;border:1px solid var(--line);padding:5px 13px;}
-.tIndex a:hover{background:var(--orange);border-color:var(--orange);color:#fff;}
-.tIndex em{font-style:normal;color:var(--faint);font-size:11px;}
-.tIndex a:hover em{color:#fff;}
-.tSec{margin-top:34px;scroll-margin-top:20px;}
-.tSec h2{font-size:12.5px;font-weight:700;letter-spacing:.14em;margin:0 0 2px;color:var(--orange);}
-.aItem{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:baseline;
-  padding:15px 0;border-top:1px solid var(--line);transition:background .12s,padding .12s;}
-.tSec .aItem:last-child{border-bottom:1px solid var(--line);}
-.aItem:hover{background:var(--ink);color:var(--bg);padding-right:14px;padding-left:14px;}
-.aItem:hover .aDate{color:var(--orange);}
-.aDate{font-size:12px;color:var(--faint);white-space:nowrap;}
-.aTitle{font-family:var(--fhead);font-size:clamp(17px,2.2vw,23px);font-weight:600;
-  line-height:1.3;letter-spacing:-.02em;}
-</style>
+  {% else %}
+  <div class="state">
+    <span class="file">بدون برچسب</span>
+    <h2>هنوز برچسبی ساخته نشده</h2>
+    <p>هر نوشته می‌تواند چند برچسب داشته باشد؛ به‌محض افزودن، این‌جا دسته‌بندی می‌شود.</p>
+    <div class="state-acts">
+      <a class="btn" href="{{ '/archive/' | relative_url }}">آرشیو نوشته‌ها</a>
+      <a class="btn" href="{{ '/' | relative_url }}">خانه</a>
+    </div>
+  </div>
+  {% endif %}
+</div>

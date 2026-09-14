@@ -1,43 +1,81 @@
 ---
 layout: default
 title: آرشیو
+description: فهرست کامل نوشته‌ها به‌ترتیب سال شمسی، با امکان فیلتر برچسب.
 permalink: /archive/
 ---
-<header class="gHead">
-  <h1>آرشیو</h1>
-  <p class="num">{{ site.posts.size }} نوشته</p>
-</header>
+<div class="wrap">
+  <header class="page-head">
+    <div class="hero-top">
+      <span class="seal" aria-hidden="true"></span>
+      <span class="file">همهٔ پرونده‌ها</span>
+    </div>
+    <h1>آرشیو</h1>
+    <div class="meta">
+      <span><span data-num>{{ site.posts.size }}</span> نوشته</span>
+      <span class="dot" aria-hidden="true"></span>
+      <span><span data-num>{{ site.tags.size }}</span> برچسب</span>
+      {% if site.posts.first %}
+      <span class="dot" aria-hidden="true"></span>
+      <span>آخرین · <time datetime="{{ site.posts.first.date | date_to_xmlschema }}" data-fmt="short">{{ site.posts.first.date | date: "%Y/%m/%d" }}</time></span>
+      {% endif %}
+    </div>
+  </header>
 
-{% assign byYear = site.posts | group_by_exp: "p", "p.date | date: '%Y'" %}
-{% for year in byYear %}
-<section class="yr">
-  <h2 class="num">{{ year.name }}</h2>
-  {% for p in year.items %}
-  <a class="aItem" href="{{ p.url | relative_url }}">
-    <span class="aDate num">{{ p.date | date: "%m/%d" }}</span>
-    <span class="aTitle">{{ p.title }}</span>
-    {% if p.tags.first %}<span class="aTag">{{ p.tags.first }}</span>{% endif %}
-  </a>
+  {% assign alltags = site.tags | sort %}
+  {% if alltags.size > 0 %}
+  <div class="filters" data-filters role="group" aria-label="فیلتر برچسب">
+    <button type="button" data-filter="" aria-pressed="true">همه</button>
+    {% for t in alltags %}<button type="button" data-filter="{{ t[0] }}" aria-pressed="false">{{ t[0] }} <span class="num" data-num style="color:var(--ink-3);margin-inline-start:6px;">{{ t[1].size }}</span></button>{% endfor %}
+  </div>
+  {% endif %}
+
+  {% assign years = "" | split: "" %}
+  {% for p in site.posts %}
+    {% assign gy = p.date | date: "%Y" | plus: 0 %}
+    {% assign mmdd = p.date | date: "%m%d" | plus: 0 %}
+    {% assign jy = gy | minus: 622 %}{% if mmdd >= 321 %}{% assign jy = jy | plus: 1 %}{% endif %}
+    {% assign one = jy | append: "" | split: "," %}
+    {% assign years = years | concat: one %}
   {% endfor %}
-</section>
-{% endfor %}
+  {% assign years = years | uniq %}
 
-<style>
-.gHead{padding:36px 0 22px;border-bottom:1px solid var(--line);margin-bottom:10px;}
-.gHead h1{font-family:var(--fhead);font-size:clamp(30px,5vw,56px);font-weight:900;
-  margin:0 0 8px;letter-spacing:-.035em;line-height:1;}
-.gHead p{color:var(--faint);font-size:13px;margin:0;}
-.yr{margin-top:34px;}
-.yr h2{font-size:12.5px;font-weight:700;letter-spacing:.14em;margin:0 0 2px;color:var(--orange);}
-.aItem{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:baseline;
-  padding:15px 0;border-top:1px solid var(--line);transition:background .12s,padding .12s;}
-.yr .aItem:last-child{border-bottom:1px solid var(--line);}
-.aItem:hover{background:var(--ink);color:var(--bg);padding-right:14px;padding-left:14px;}
-.aItem:hover .aDate{color:var(--orange);}
-.aItem:hover .aTag{background:var(--orange);border-color:var(--orange);color:#fff;}
-.aDate{font-size:12px;color:var(--faint);white-space:nowrap;}
-.aTitle{font-family:var(--fhead);font-size:clamp(17px,2.2vw,23px);font-weight:600;
-  line-height:1.3;letter-spacing:-.02em;}
-.aTag{font-size:11px;border:1px solid var(--line);padding:2px 9px;white-space:nowrap;}
-@media(max-width:640px){.aItem{grid-template-columns:auto 1fr;}.aTag{display:none;}}
-</style>
+  {% for y in years %}
+  <section class="year" data-group>
+    <div class="year-head">
+      <h2 class="num" data-num>{{ y }}</h2>
+      {% assign yc = 0 %}
+      {% for p in site.posts %}
+        {% assign gy = p.date | date: "%Y" | plus: 0 %}
+        {% assign mmdd = p.date | date: "%m%d" | plus: 0 %}
+        {% assign jy = gy | minus: 622 %}{% if mmdd >= 321 %}{% assign jy = jy | plus: 1 %}{% endif %}
+        {% assign jys2 = jy | append: "" %}
+        {% if jys2 == y %}{% assign yc = yc | plus: 1 %}{% endif %}
+      {% endfor %}
+      <span><span data-num>{{ yc }}</span> نوشته</span>
+    </div>
+    {% for p in site.posts %}
+      {% assign gy = p.date | date: "%Y" | plus: 0 %}
+      {% assign mmdd = p.date | date: "%m%d" | plus: 0 %}
+      {% assign jy = gy | minus: 622 %}{% if mmdd >= 321 %}{% assign jy = jy | plus: 1 %}{% endif %}
+      {% assign jys = jy | append: "" %}
+      {% if jys == y %}
+      <a class="line" href="{{ p.url | relative_url }}" data-tags="{{ p.tags | join: ' ' }}">
+        <span class="line-d num"><time datetime="{{ p.date | date_to_xmlschema }}" data-fmt="md">{{ p.date | date: "%m/%d" }}</time></span>
+        <span class="line-t">{{ p.title }}</span>
+        <span class="line-x">{% if p.tags.first %}{{ p.tags.first }} · {% endif %}<span data-num>{{ p.content | number_of_words | divided_by: 200 | plus: 1 }}</span> دقیقه</span>
+      </a>
+      {% endif %}
+    {% endfor %}
+  </section>
+  {% endfor %}
+
+  {% if site.posts.size == 0 %}
+  <div class="state">
+    <span class="file">آرشیو خالی</span>
+    <h2>هنوز نوشته‌ای منتشر نشده</h2>
+    <p>به‌محض انتشار نخستین نوشته، این‌جا به‌ترتیب سال شمسی فهرست می‌شود.</p>
+    <div class="state-acts"><a class="btn" href="{{ '/' | relative_url }}">بازگشت به خانه</a></div>
+  </div>
+  {% endif %}
+</div>
