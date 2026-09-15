@@ -378,12 +378,17 @@ html[data-theme="dark"] .lit .b{background:
   color:var(--accent);line-height:1;letter-spacing:0;}
 
 /* first card in the feed reads wider */
-.card-lead{grid-column:1 / -1;grid-template-columns:minmax(0,1fr) minmax(0,.82fr);
-  gap:clamp(20px,3vw,40px);border-block-start-color:var(--ink);
-  padding-block:30px 34px;}
-.card-lead .card-fig{order:0;grid-row:span 4;align-self:start;}
-.card-lead h3{font-size:clamp(25px,3.2vw,40px);}
-.card-lead p{font-size:16.5px;max-width:58ch;}
+.card-lead{grid-column:1 / -1;grid-template-columns:minmax(0,1fr) minmax(0,.86fr);
+  grid-template-rows:auto auto auto 1fr auto;
+  column-gap:clamp(24px,3.4vw,52px);row-gap:14px;
+  border-block-start-color:var(--ink);padding-block:30px 34px;}
+.card-lead .card-fig{order:0;grid-column:1;grid-row:1 / -1;align-self:start;}
+.card-lead .card-no{grid-column:2;border-block-end:1px solid var(--rule);
+  padding-block-end:13px;font-size:13.5px;}
+.card-lead h3{grid-column:2;font-size:clamp(25px,3.2vw,40px);margin-block-start:2px;}
+.card-lead p{grid-column:2;font-size:16.5px;max-width:42ch;}
+.card-lead .meta{grid-column:2;grid-row:5;border-block-start:1px solid var(--rule);
+  padding-block-start:14px;}
 
 /* tag cloud + archive CTA + about */
 .strips{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
@@ -728,8 +733,10 @@ mark{background:var(--accent);color:var(--on-accent);padding:0 3px;}
   body{font-size:17px;}
   :root{--gut:18px;}
   .feed-grid{grid-template-columns:minmax(0,1fr);}
-  .card-lead{grid-template-columns:minmax(0,1fr);}
-  .card-lead .card-fig{order:-1;grid-row:auto;}
+  .card-lead{grid-template-columns:minmax(0,1fr);grid-template-rows:none;row-gap:13px;}
+  .card-lead .card-fig{order:-1;grid-column:1;grid-row:auto;}
+  .card-lead .card-no,.card-lead h3,.card-lead p,.card-lead .meta{grid-column:1;grid-row:auto;}
+  .card-lead p{max-width:58ch;}
   .feat-row{grid-template-columns:minmax(0,1fr);}
   .feat-row .feat-item + .feat-item{border-inline-end:0;padding-inline-end:0;}
   .line{grid-template-columns:minmax(0,1fr);gap:6px;}
