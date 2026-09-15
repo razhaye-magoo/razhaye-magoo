@@ -158,33 +158,44 @@ html.js .reveal.is-in{transform:none;
   transition:transform .55s cubic-bezier(.2,.7,.2,1);}
 
 /* ---------- 2b. scroll-lit ground ---------- */
-/* One very low-alpha wash behind everything. Its angle and position track the
-   scroll, so the page feels lit from a slowly moving source. Alpha stays under
-   4% — at full scroll it is still barely nameable as a gradient. */
-html{--lit:0deg;--litY:0%;}
-body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;
-  background:linear-gradient(var(--lit),
-    rgba(168,50,50,.038) 0%,
-    rgba(168,50,50,0) 42%,
-    rgba(107,108,94,.03) 100%);
-  background-position:0 var(--litY);background-size:100% 140%;
-  transition:none;}
+/* Two washes behind everything: a warm one anchored top-right, a cool one
+   bottom-left. Their angle swings and their strength crossfades as the page
+   scrolls, so the paper reads as lit from a slowly moving source. */
+html{--lit:0deg;--litY:0%;--litA:1;--litB:0;}
+body::before{content:"";position:fixed;inset:-25%;z-index:-1;pointer-events:none;
+  background:
+    linear-gradient(var(--lit),
+      rgba(168,50,50,calc(.115 * var(--litA))) 0%,
+      rgba(168,50,50,0) 46%,
+      rgba(107,108,94,calc(.10 * var(--litB))) 100%),
+    radial-gradient(70% 55% at 82% 8%, rgba(168,50,50,calc(.085 * var(--litA))) 0%, rgba(168,50,50,0) 70%),
+    radial-gradient(75% 60% at 12% 96%, rgba(107,108,94,calc(.085 * var(--litB))) 0%, rgba(107,108,94,0) 72%);
+  background-position:0 var(--litY), 0 0, 0 0;
+  background-size:100% 150%, 100% 100%, 100% 100%;}
 html[data-theme="dark"] body::before{
-  background:linear-gradient(var(--lit),
-    rgba(224,104,92,.05) 0%,
-    rgba(224,104,92,0) 44%,
-    rgba(142,144,128,.042) 100%);
-  background-position:0 var(--litY);background-size:100% 140%;}
+  background:
+    linear-gradient(var(--lit),
+      rgba(224,104,92,calc(.15 * var(--litA))) 0%,
+      rgba(224,104,92,0) 46%,
+      rgba(142,144,128,calc(.13 * var(--litB))) 100%),
+    radial-gradient(70% 55% at 82% 8%, rgba(224,104,92,calc(.11 * var(--litA))) 0%, rgba(224,104,92,0) 70%),
+    radial-gradient(75% 60% at 12% 96%, rgba(142,144,128,calc(.11 * var(--litB))) 0%, rgba(142,144,128,0) 72%);
+  background-position:0 var(--litY), 0 0, 0 0;
+  background-size:100% 150%, 100% 100%, 100% 100%;}
 @media (prefers-color-scheme:dark){
   html:not([data-theme="light"]) body::before{
-    background:linear-gradient(var(--lit),
-      rgba(224,104,92,.05) 0%,
-      rgba(224,104,92,0) 44%,
-      rgba(142,144,128,.042) 100%);
-    background-position:0 var(--litY);background-size:100% 140%;}
+    background:
+      linear-gradient(var(--lit),
+        rgba(224,104,92,calc(.15 * var(--litA))) 0%,
+        rgba(224,104,92,0) 46%,
+        rgba(142,144,128,calc(.13 * var(--litB))) 100%),
+      radial-gradient(70% 55% at 82% 8%, rgba(224,104,92,calc(.11 * var(--litA))) 0%, rgba(224,104,92,0) 70%),
+      radial-gradient(75% 60% at 12% 96%, rgba(142,144,128,calc(.11 * var(--litB))) 0%, rgba(142,144,128,0) 72%);
+    background-position:0 var(--litY), 0 0, 0 0;
+    background-size:100% 150%, 100% 100%, 100% 100%;}
 }
 @media (prefers-reduced-motion:reduce){
-  html{--lit:150deg!important;--litY:0%!important;}
+  html{--lit:150deg!important;--litY:0%!important;--litA:1!important;--litB:.5!important;}
 }
 @media print{body::before{display:none;}}
 

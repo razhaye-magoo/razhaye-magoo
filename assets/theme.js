@@ -163,9 +163,11 @@
       var doc = document.documentElement;
       var span = doc.scrollHeight - window.innerHeight;
       var p = span > 0 ? Math.min(Math.max(window.pageYOffset / span, 0), 1) : 0;
-      // 118deg → 212deg across the page, and the wash slides a little too
-      doc.style.setProperty('--lit', (118 + p * 94).toFixed(1) + 'deg');
-      doc.style.setProperty('--litY', (p * 40).toFixed(1) + '%');
+      // the light swings through a half turn and the two washes crossfade
+      doc.style.setProperty('--lit', (105 + p * 170).toFixed(1) + 'deg');
+      doc.style.setProperty('--litY', (p * 50).toFixed(1) + '%');
+      doc.style.setProperty('--litA', (1 - p * 0.8).toFixed(3));
+      doc.style.setProperty('--litB', (0.2 + p * 0.8).toFixed(3));
       litTick = false;
     };
     lit();
