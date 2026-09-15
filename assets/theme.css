@@ -79,8 +79,6 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
 body{
   margin:0;
   background-color:var(--paper);
-  /* paper grain — CSS only, ~2.8% ink */
-  background-image:repeating-linear-gradient(45deg,var(--hatch) 0 1px,transparent 1px 6px);
   color:var(--ink);
   font-family:var(--f-body);
   font-size:17px;
@@ -159,45 +157,93 @@ html.js .reveal.is-in{transform:none;
 
 /* ---------- 2b. scroll-lit ground ---------- */
 /* Two washes behind everything: a warm one anchored top-right, a cool one
-   bottom-left. Their angle swings and their strength crossfades as the page
-   scrolls, so the paper reads as lit from a slowly moving source. */
+   bottom-left. Angle swings and strength crossfades with scroll.
+   Banded gradients are 8-bit quantisation — countered with dense stops plus a
+   noise dither layer (body::after) that scatters the step edges. */
 html{--lit:0deg;--litY:0%;--litA:1;--litB:0;}
 body::before{content:"";position:fixed;inset:-25%;z-index:-1;pointer-events:none;
   background:
     linear-gradient(var(--lit),
-      rgba(168,50,50,calc(.115 * var(--litA))) 0%,
-      rgba(168,50,50,0) 46%,
-      rgba(107,108,94,calc(.10 * var(--litB))) 100%),
-    radial-gradient(70% 55% at 82% 8%, rgba(168,50,50,calc(.085 * var(--litA))) 0%, rgba(168,50,50,0) 70%),
-    radial-gradient(75% 60% at 12% 96%, rgba(107,108,94,calc(.085 * var(--litB))) 0%, rgba(107,108,94,0) 72%);
+      rgba(168,50,50,calc(0.1150 * var(--litA))) 0%,
+      rgba(168,50,50,calc(0.0860 * var(--litA))) 14%,
+      rgba(168,50,50,calc(0.0550 * var(--litA))) 28%,
+      rgba(168,50,50,calc(0.0260 * var(--litA))) 38%,
+      rgba(168,50,50,0) 47%,
+      rgba(107,108,94,0) 55%,
+      rgba(107,108,94,calc(0.0260 * var(--litB))) 66%,
+      rgba(107,108,94,calc(0.0550 * var(--litB))) 79%,
+      rgba(107,108,94,calc(0.1000 * var(--litB))) 100%),
+    radial-gradient(70% 55% at 82% 8%,
+      rgba(168,50,50,calc(0.0850 * var(--litA))) 0%,
+      rgba(168,50,50,calc(0.0480 * var(--litA))) 34%,
+      rgba(168,50,50,calc(0.0180 * var(--litA))) 55%,
+      rgba(168,50,50,0) 72%),
+    radial-gradient(75% 60% at 12% 96%,
+      rgba(107,108,94,calc(0.0850 * var(--litB))) 0%,
+      rgba(107,108,94,calc(0.0480 * var(--litB))) 34%,
+      rgba(107,108,94,calc(0.0180 * var(--litB))) 56%,
+      rgba(107,108,94,0) 74%);
   background-position:0 var(--litY), 0 0, 0 0;
   background-size:100% 150%, 100% 100%, 100% 100%;}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  background-size:160px 160px;opacity:.5;mix-blend-mode:multiply;}
+html[data-theme="dark"] body::after{mix-blend-mode:screen;opacity:.32;}
 html[data-theme="dark"] body::before{
   background:
     linear-gradient(var(--lit),
-      rgba(224,104,92,calc(.15 * var(--litA))) 0%,
-      rgba(224,104,92,0) 46%,
-      rgba(142,144,128,calc(.13 * var(--litB))) 100%),
-    radial-gradient(70% 55% at 82% 8%, rgba(224,104,92,calc(.11 * var(--litA))) 0%, rgba(224,104,92,0) 70%),
-    radial-gradient(75% 60% at 12% 96%, rgba(142,144,128,calc(.11 * var(--litB))) 0%, rgba(142,144,128,0) 72%);
+      rgba(224,104,92,calc(0.1495 * var(--litA))) 0%,
+      rgba(224,104,92,calc(0.1118 * var(--litA))) 14%,
+      rgba(224,104,92,calc(0.0715 * var(--litA))) 28%,
+      rgba(224,104,92,calc(0.0338 * var(--litA))) 38%,
+      rgba(224,104,92,0) 47%,
+      rgba(142,144,128,0) 55%,
+      rgba(142,144,128,calc(0.0338 * var(--litB))) 66%,
+      rgba(142,144,128,calc(0.0715 * var(--litB))) 79%,
+      rgba(142,144,128,calc(0.1300 * var(--litB))) 100%),
+    radial-gradient(70% 55% at 82% 8%,
+      rgba(224,104,92,calc(0.1105 * var(--litA))) 0%,
+      rgba(224,104,92,calc(0.0624 * var(--litA))) 34%,
+      rgba(224,104,92,calc(0.0234 * var(--litA))) 55%,
+      rgba(224,104,92,0) 72%),
+    radial-gradient(75% 60% at 12% 96%,
+      rgba(142,144,128,calc(0.1105 * var(--litB))) 0%,
+      rgba(142,144,128,calc(0.0624 * var(--litB))) 34%,
+      rgba(142,144,128,calc(0.0234 * var(--litB))) 56%,
+      rgba(142,144,128,0) 74%);
   background-position:0 var(--litY), 0 0, 0 0;
   background-size:100% 150%, 100% 100%, 100% 100%;}
 @media (prefers-color-scheme:dark){
+  html:not([data-theme="light"]) body::after{mix-blend-mode:screen;opacity:.32;}
   html:not([data-theme="light"]) body::before{
     background:
       linear-gradient(var(--lit),
-        rgba(224,104,92,calc(.15 * var(--litA))) 0%,
-        rgba(224,104,92,0) 46%,
-        rgba(142,144,128,calc(.13 * var(--litB))) 100%),
-      radial-gradient(70% 55% at 82% 8%, rgba(224,104,92,calc(.11 * var(--litA))) 0%, rgba(224,104,92,0) 70%),
-      radial-gradient(75% 60% at 12% 96%, rgba(142,144,128,calc(.11 * var(--litB))) 0%, rgba(142,144,128,0) 72%);
+      rgba(224,104,92,calc(0.1495 * var(--litA))) 0%,
+      rgba(224,104,92,calc(0.1118 * var(--litA))) 14%,
+      rgba(224,104,92,calc(0.0715 * var(--litA))) 28%,
+      rgba(224,104,92,calc(0.0338 * var(--litA))) 38%,
+      rgba(224,104,92,0) 47%,
+      rgba(142,144,128,0) 55%,
+      rgba(142,144,128,calc(0.0338 * var(--litB))) 66%,
+      rgba(142,144,128,calc(0.0715 * var(--litB))) 79%,
+      rgba(142,144,128,calc(0.1300 * var(--litB))) 100%),
+    radial-gradient(70% 55% at 82% 8%,
+      rgba(224,104,92,calc(0.1105 * var(--litA))) 0%,
+      rgba(224,104,92,calc(0.0624 * var(--litA))) 34%,
+      rgba(224,104,92,calc(0.0234 * var(--litA))) 55%,
+      rgba(224,104,92,0) 72%),
+    radial-gradient(75% 60% at 12% 96%,
+      rgba(142,144,128,calc(0.1105 * var(--litB))) 0%,
+      rgba(142,144,128,calc(0.0624 * var(--litB))) 34%,
+      rgba(142,144,128,calc(0.0234 * var(--litB))) 56%,
+      rgba(142,144,128,0) 74%);
     background-position:0 var(--litY), 0 0, 0 0;
     background-size:100% 150%, 100% 100%, 100% 100%;}
 }
 @media (prefers-reduced-motion:reduce){
   html{--lit:150deg!important;--litY:0%!important;--litA:1!important;--litB:.5!important;}
 }
-@media print{body::before{display:none;}}
+@media print{body::before,body::after{display:none;}}
 
 /* ---------- 3. reading progress ---------- */
 .progress{position:fixed;inset-block-start:0;inset-inline:0;height:3px;z-index:80;
