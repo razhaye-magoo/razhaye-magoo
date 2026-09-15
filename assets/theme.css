@@ -20,7 +20,6 @@
   --rule:#CCC6B8;
   --rule-2:#B9B2A2;
   --on-accent:#FBF8F2;
-  --hatch:rgba(18,19,19,.013);
   --seal:#A83232;
 
   --maxw:1240px;
@@ -48,7 +47,6 @@ html[data-theme="dark"]{
   --rule:#35322D;
   --rule-2:#463F38;
   --on-accent:#15120F;
-  --hatch:rgba(239,235,226,.014);
   --seal:#E0685C;
   color-scheme:dark;
 }
@@ -67,18 +65,22 @@ html[data-theme="dark"]{
     --rule:#35322D;
     --rule-2:#463F38;
     --on-accent:#15120F;
-    --hatch:rgba(239,235,226,.014);
-    --seal:#E0685C;
+      --seal:#E0685C;
     color-scheme:dark;
   }
 }
 
 /* ---------- 2. base ---------- */
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden;}
 body{
   margin:0;
   background-color:var(--paper);
+  /* paper grain: blended against the paper on this same element, so overlay
+     is symmetric around it and the canvas keeps its value */
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  background-size:160px 160px;
+  background-blend-mode:overlay;
   color:var(--ink);
   font-family:var(--f-body);
   font-size:17px;
@@ -86,7 +88,6 @@ body{
   font-weight:400;
   -webkit-font-smoothing:antialiased;
   overflow-wrap:break-word;
-  overflow-x:hidden;
 }
 h1,h2,h3,h4,h5,h6{font-family:var(--f-head);}
 a{color:inherit;text-decoration:none;}
@@ -147,7 +148,7 @@ html.js .prose h2{position:relative;}
 
 /* cover drifts a little slower than the page */
 .cover{overflow:hidden;}
-.cover img{will-change:transform;}
+.cover img{backface-visibility:hidden;}
 
 /* reveal (progressive; visible when JS is off) */
 /* motion only — content is never hidden behind a JS callback */
@@ -156,94 +157,47 @@ html.js .reveal.is-in{transform:none;
   transition:transform .55s cubic-bezier(.2,.7,.2,1);}
 
 /* ---------- 2b. scroll-lit ground ---------- */
-/* Two washes behind everything: a warm one anchored top-right, a cool one
-   bottom-left. Angle swings and strength crossfades with scroll.
-   Banded gradients are 8-bit quantisation — countered with dense stops plus a
-   noise dither layer (body::after) that scatters the step edges. */
-html{--lit:0deg;--litY:0%;--litA:1;--litB:0;}
-body::before{content:"";position:fixed;inset:-25%;z-index:-1;pointer-events:none;
-  background:
-    linear-gradient(var(--lit),
-      rgba(168,50,50,calc(0.1150 * var(--litA))) 0%,
-      rgba(168,50,50,calc(0.0860 * var(--litA))) 14%,
-      rgba(168,50,50,calc(0.0550 * var(--litA))) 28%,
-      rgba(168,50,50,calc(0.0260 * var(--litA))) 38%,
-      rgba(168,50,50,0) 47%,
-      rgba(107,108,94,0) 55%,
-      rgba(107,108,94,calc(0.0260 * var(--litB))) 66%,
-      rgba(107,108,94,calc(0.0550 * var(--litB))) 79%,
-      rgba(107,108,94,calc(0.1000 * var(--litB))) 100%),
-    radial-gradient(70% 55% at 82% 8%,
-      rgba(168,50,50,calc(0.0850 * var(--litA))) 0%,
-      rgba(168,50,50,calc(0.0480 * var(--litA))) 34%,
-      rgba(168,50,50,calc(0.0180 * var(--litA))) 55%,
-      rgba(168,50,50,0) 72%),
-    radial-gradient(75% 60% at 12% 96%,
-      rgba(107,108,94,calc(0.0850 * var(--litB))) 0%,
-      rgba(107,108,94,calc(0.0480 * var(--litB))) 34%,
-      rgba(107,108,94,calc(0.0180 * var(--litB))) 56%,
-      rgba(107,108,94,0) 74%);
-  background-position:0 var(--litY), 0 0, 0 0;
-  background-size:100% 150%, 100% 100%, 100% 100%;}
-body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
-  background-size:160px 160px;opacity:.5;mix-blend-mode:multiply;}
-html[data-theme="dark"] body::after{mix-blend-mode:screen;opacity:.32;}
-html[data-theme="dark"] body::before{
-  background:
-    linear-gradient(var(--lit),
-      rgba(224,104,92,calc(0.1495 * var(--litA))) 0%,
-      rgba(224,104,92,calc(0.1118 * var(--litA))) 14%,
-      rgba(224,104,92,calc(0.0715 * var(--litA))) 28%,
-      rgba(224,104,92,calc(0.0338 * var(--litA))) 38%,
-      rgba(224,104,92,0) 47%,
-      rgba(142,144,128,0) 55%,
-      rgba(142,144,128,calc(0.0338 * var(--litB))) 66%,
-      rgba(142,144,128,calc(0.0715 * var(--litB))) 79%,
-      rgba(142,144,128,calc(0.1300 * var(--litB))) 100%),
-    radial-gradient(70% 55% at 82% 8%,
-      rgba(224,104,92,calc(0.1105 * var(--litA))) 0%,
-      rgba(224,104,92,calc(0.0624 * var(--litA))) 34%,
-      rgba(224,104,92,calc(0.0234 * var(--litA))) 55%,
-      rgba(224,104,92,0) 72%),
-    radial-gradient(75% 60% at 12% 96%,
-      rgba(142,144,128,calc(0.1105 * var(--litB))) 0%,
-      rgba(142,144,128,calc(0.0624 * var(--litB))) 34%,
-      rgba(142,144,128,calc(0.0234 * var(--litB))) 56%,
-      rgba(142,144,128,0) 74%);
-  background-position:0 var(--litY), 0 0, 0 0;
-  background-size:100% 150%, 100% 100%, 100% 100%;}
+/* Two washes behind the page, crossfaded by scroll. Deliberately cheap:
+   OPACITY plus a few pixels of translate — never a rotation, which would need
+   layers ~3.6x the viewport each and is what made scrolling stutter, and never
+   an animated gradient angle, which re-rasterizes every frame. `will-change`
+   is applied only while scrolling so the GPU textures are not held at rest. */
+.lit{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;
+  contain:strict;}
+.lit i{position:absolute;inset:-6% -6% -10%;display:block;
+  transform:translate3d(0,0,0);}
+.lit.is-live i{will-change:transform,opacity;}
+.lit .a{opacity:1;background:
+  radial-gradient(62% 48% at 78% 14%,
+    rgba(168,50,50,0.115) 0%, rgba(168,50,50,0.072) 30%,
+    rgba(168,50,50,0.032) 52%, rgba(168,50,50,0.010) 68%, rgba(168,50,50,0) 80%);}
+.lit .b{opacity:.2;background:
+  radial-gradient(66% 52% at 18% 88%,
+    rgba(107,108,94,0.105) 0%, rgba(107,108,94,0.066) 30%,
+    rgba(107,108,94,0.030) 52%, rgba(107,108,94,0.009) 68%, rgba(107,108,94,0) 80%);}
+html[data-theme="dark"] .lit .a{background:
+  radial-gradient(62% 48% at 78% 14%,
+    rgba(224,104,92,0.150) 0%, rgba(224,104,92,0.094) 30%,
+    rgba(224,104,92,0.042) 52%, rgba(224,104,92,0.013) 68%, rgba(224,104,92,0) 80%);}
+html[data-theme="dark"] .lit .b{background:
+  radial-gradient(66% 52% at 18% 88%,
+    rgba(142,144,128,0.140) 0%, rgba(142,144,128,0.088) 30%,
+    rgba(142,144,128,0.040) 52%, rgba(142,144,128,0.012) 68%, rgba(142,144,128,0) 80%);}
 @media (prefers-color-scheme:dark){
-  html:not([data-theme="light"]) body::after{mix-blend-mode:screen;opacity:.32;}
-  html:not([data-theme="light"]) body::before{
-    background:
-      linear-gradient(var(--lit),
-      rgba(224,104,92,calc(0.1495 * var(--litA))) 0%,
-      rgba(224,104,92,calc(0.1118 * var(--litA))) 14%,
-      rgba(224,104,92,calc(0.0715 * var(--litA))) 28%,
-      rgba(224,104,92,calc(0.0338 * var(--litA))) 38%,
-      rgba(224,104,92,0) 47%,
-      rgba(142,144,128,0) 55%,
-      rgba(142,144,128,calc(0.0338 * var(--litB))) 66%,
-      rgba(142,144,128,calc(0.0715 * var(--litB))) 79%,
-      rgba(142,144,128,calc(0.1300 * var(--litB))) 100%),
-    radial-gradient(70% 55% at 82% 8%,
-      rgba(224,104,92,calc(0.1105 * var(--litA))) 0%,
-      rgba(224,104,92,calc(0.0624 * var(--litA))) 34%,
-      rgba(224,104,92,calc(0.0234 * var(--litA))) 55%,
-      rgba(224,104,92,0) 72%),
-    radial-gradient(75% 60% at 12% 96%,
-      rgba(142,144,128,calc(0.1105 * var(--litB))) 0%,
-      rgba(142,144,128,calc(0.0624 * var(--litB))) 34%,
-      rgba(142,144,128,calc(0.0234 * var(--litB))) 56%,
-      rgba(142,144,128,0) 74%);
-    background-position:0 var(--litY), 0 0, 0 0;
-    background-size:100% 150%, 100% 100%, 100% 100%;}
+  html:not([data-theme="light"]) .lit .a{background:
+  radial-gradient(62% 48% at 78% 14%,
+    rgba(224,104,92,0.150) 0%, rgba(224,104,92,0.094) 30%,
+    rgba(224,104,92,0.042) 52%, rgba(224,104,92,0.013) 68%, rgba(224,104,92,0) 80%);}
+  html:not([data-theme="light"]) .lit .b{background:
+  radial-gradient(66% 52% at 18% 88%,
+    rgba(142,144,128,0.140) 0%, rgba(142,144,128,0.088) 30%,
+    rgba(142,144,128,0.040) 52%, rgba(142,144,128,0.012) 68%, rgba(142,144,128,0) 80%);}
 }
 @media (prefers-reduced-motion:reduce){
-  html{--lit:150deg!important;--litY:0%!important;--litA:1!important;--litB:.5!important;}
+  .lit i{transform:none!important;}
+  .lit .b{opacity:.5!important;}
 }
-@media print{body::before,body::after{display:none;}}
+@media print{.lit{display:none;}}
 
 /* ---------- 3. reading progress ---------- */
 .progress{position:fixed;inset-block-start:0;inset-inline:0;height:3px;z-index:80;

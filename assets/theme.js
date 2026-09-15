@@ -152,47 +152,59 @@
       }
     };
     upd();
-    window.addEventListener('scroll', upd, { passive: true });
-    window.addEventListener('resize', upd);
+    var updId = 0;
+    var updQueue = function () {
+      if (updId) window.cancelAnimationFrame(updId);
+      updId = window.requestAnimationFrame(function () { updId = 0; upd(); });
+    };
+    window.addEventListener('scroll', updQueue, { passive: true });
+    window.addEventListener('resize', updQueue);
   }
 
   /* ---------- scroll-lit ground ---------- */
-  if (!reduce) {
-    var litTick = false;
-    var lit = function () {
+  var litBox = document.querySelector('.lit');
+  if (litBox && !reduce) {
+    var litA = litBox.querySelector('.a');
+    var litB = litBox.querySelector('.b');
+    var litId = 0, litIdle = 0;
+    var litPaint = function () {
+      litId = 0;
       var doc = document.documentElement;
       var span = doc.scrollHeight - window.innerHeight;
       var p = span > 0 ? Math.min(Math.max(window.pageYOffset / span, 0), 1) : 0;
-      // the light swings through a half turn and the two washes crossfade
-      doc.style.setProperty('--lit', (105 + p * 170).toFixed(1) + 'deg');
-      doc.style.setProperty('--litY', (p * 50).toFixed(1) + '%');
-      doc.style.setProperty('--litA', (1 - p * 0.8).toFixed(3));
-      doc.style.setProperty('--litB', (0.2 + p * 0.8).toFixed(3));
-      litTick = false;
+      // warm light fades out as the cool one comes up; each drifts a few px
+      litA.style.opacity = (1 - p * 0.8).toFixed(3);
+      litA.style.transform = 'translate3d(0,' + (p * -26).toFixed(1) + 'px,0)';
+      litB.style.opacity = (0.2 + p * 0.8).toFixed(3);
+      litB.style.transform = 'translate3d(0,' + (p * 22).toFixed(1) + 'px,0)';
     };
-    lit();
-    window.addEventListener('scroll', function () {
-      if (litTick) return;
-      litTick = true;
-      window.requestAnimationFrame(lit);
-    }, { passive: true });
-    window.addEventListener('resize', lit);
+    var litQueue = function () {
+      litBox.classList.add('is-live');
+      if (litId) window.cancelAnimationFrame(litId);
+      litId = window.requestAnimationFrame(litPaint);
+      // drop the GPU textures once scrolling stops
+      window.clearTimeout(litIdle);
+      litIdle = window.setTimeout(function () { litBox.classList.remove('is-live'); }, 220);
+    };
+    litPaint();
+    window.addEventListener('scroll', litQueue, { passive: true });
+    window.addEventListener('resize', litQueue);
   }
 
   /* ---------- scroll-linked motion ---------- */
   var coverImg = document.querySelector('.cover img');
   if (coverImg && !reduce) {
-    coverImg.style.transform = 'translate3d(0,0,0) scale(1.07)';
-    var ticking = false;
-    var drift = function () {
+    var driftId = 0;
+    var driftPaint = function () {
+      driftId = 0;
       var y = window.pageYOffset;
+      if (y > window.innerHeight * 1.5) return;
       coverImg.style.transform = 'translate3d(0,' + (y * 0.11).toFixed(1) + 'px,0) scale(1.07)';
-      ticking = false;
     };
+    driftPaint();
     window.addEventListener('scroll', function () {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(drift);
+      if (driftId) window.cancelAnimationFrame(driftId);
+      driftId = window.requestAnimationFrame(driftPaint);
     }, { passive: true });
   }
 
