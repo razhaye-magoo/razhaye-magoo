@@ -72,7 +72,8 @@ html[data-theme="dark"]{
 
 /* ---------- 2. base ---------- */
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:clip;}
+body{overflow-x:clip;}
 body{
   margin:0;
   background-color:var(--paper);
@@ -147,7 +148,7 @@ html.js .shead.is-in::after,html.js .year-head.is-in::after,html.js .prose h2.is
 html.js .prose h2{position:relative;}
 
 /* cover drifts a little slower than the page */
-.cover{overflow:hidden;}
+.cover{overflow:clip;}
 .cover img{backface-visibility:hidden;}
 
 /* reveal (progressive; visible when JS is off) */
